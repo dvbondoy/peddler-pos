@@ -1,0 +1,99 @@
+<!--
+  This template loads for the 'activity' state (app.js)
+  Show recent activity
+-->
+<ion-view view-title="{{ order.total | currency }}">
+  <ion-content class="">
+
+    <div class="padding">
+
+      <div class="padding">
+        <button class="button button-block button-round calm">Issue Receipt</button>
+      </div>
+
+      <div class="padding">
+        <button class="button button-block button-round calm">Issue Refund</button>
+      </div>
+
+      <!--Payment info-->
+      <h5 class="padding-left">PAYMENT</h5>
+      <div class="item item-icon-left no-border">
+        <i class="icon ion-card"></i>
+        <div>
+          Card
+          <span class="pull-right">{{ order.payment.card | currency }}</span>
+        </div>
+      </div>
+      <div class="item item-icon-left no-border">
+        <i class="icon ion-cash"></i>
+        <div>
+          Cash
+          <span class="pull-right">{{ order.payment.cash | currency }}</span>
+        </div>
+      </div>
+      <div class="item item-icon-left no-border">
+        <i class="icon ion-ios-list-outline"></i>
+        <div>
+          Receipt #{{ order.payment.receipt_number }}
+        </div>
+      </div>
+
+      <!--Items-->
+      <h5 class="padding-left">ITEMS</h5>
+      <div class="padding-left padding-right padding-bottom">
+
+        <div class="item item-icon-left pos-item no-border margin-top" ng-repeat="item in order.itemObjects">
+          <div class="icon">
+            <img src="{{ item.image }}" alt="{{ item.name }}" ng-if="item.image"/>
+            <div class="no-image center-align" ng-if="!item.image">
+              {{ item.name.substring(0, 2).toUpperCase() }}
+            </div>
+          </div>
+          <div class="padding-left">
+            {{ item.name }}
+
+            <span class="pull-right">{{ item.price | currency }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!--total-->
+      <h5 class="padding-left">TOTAL</h5>
+      <div class="padding-left padding-right">
+
+        <div class="item item-icon-left no-border margin-top">
+          <i class="icon ion-pricetag"></i>
+          <div class="padding-left">
+            Discount
+
+            <span class="pull-right">{{ order.discount | currency }}</span>
+          </div>
+        </div>
+
+
+        <div class="item item-icon-left pos-item no-border margin-top">
+          <div class="icon">
+            <div class="no-image center-align">
+              %
+            </div>
+          </div>          <div class="padding-left">
+            VAT(10%)
+
+            <span class="pull-right">Included</span>
+          </div>
+        </div>
+
+        <div class="item item-icon-left no-border margin-top">
+          <i class="icon ion-ios-list-outline"></i>
+          <div class="padding-left">
+            Total
+
+            <span class="pull-right">{{ order.total | currency }}</span>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

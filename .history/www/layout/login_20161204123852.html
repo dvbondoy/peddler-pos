@@ -1,0 +1,47 @@
+<ion-view view-title="Sign in to Pedler">
+  <ion-content class="stable-bg" scroll="false">
+
+    <div class="login-content">
+
+      <div class="welcome-content calm-bg">
+        <!-- Logo -->
+        <div class="text-center">
+          <div class="logo light">
+            <i class="ion-card"></i>
+          </div>
+          <h2 class="light">
+            Pedler POS
+          </h2>
+        </div>
+      </div>
+
+      <div class="padding-top">
+        <!-- Login form -->
+        <div class="padding">
+          <label class="item item-input">
+            <i class="ion-ios-email-outline light icon-label"></i>
+            <input type="email" placeholder="Email">
+          </label>
+          <label class="item item-input">
+            <i class="ion-ios-locked-outline light icon-label"></i>
+            <input type="password" placeholder="Password">
+          </label>
+        </div>
+        <div class="padding">
+          <button class="button button-block button-calm button-round" ui-sref="app.home">Sign in</button>
+        </div>
+
+      </div>
+
+      <!-- Other links -->
+      <div class="padding text-center bold">
+        <a class="dark">Forgot password?</a>
+      </div>
+      <div class="padding text-center bold">
+        <a ui-sref="auth.device_code" class="dark">Use a Device Code</a>
+      </div>
+
+    </div>
+
+  </ion-content>
+</ion-view>

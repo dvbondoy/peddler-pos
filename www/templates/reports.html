@@ -1,0 +1,89 @@
+<!--
+  This template loads for the 'report' state (app.js)
+  Show recent activity
+-->
+<ion-view view-title="Reports">
+  <ion-content class="">
+
+    <div class="padding border-bottom">
+      <div class="padding">
+        <h3>{{ report.date | date: 'dd MMMM yyyy'}}</h3>
+
+        <h1 class="margin-top-30 no-margin-bottom">{{ report.gross_sale | currency}}</h1>
+        <span class="gray">Gross Sales</span>
+
+        <h1 class="margin-top-30 no-margin-bottom">{{ report.sales }}</h1>
+        <span class="gray">Sales</span>
+
+        <h1 class="margin-top-30 no-margin-bottom">{{ report.gross_sale / report.sales | currency}}</h1>
+        <span class="gray">Average Sales</span>
+      </div>
+    </div>
+
+    <div class="padding border-bottom">
+
+      <div class="padding">
+        <h4>SALES SUMMARY</h4>
+
+        <h4>
+          Gross Sales
+          <span class="pull-right">{{ report.gross_sale | currency}}</span>
+        </h4>
+
+        <div>
+          Refunds
+          <span class="pull-right">{{ report.refund | currency}}</span>
+        </div>
+
+        <div>
+          Discounts
+          <span class="pull-right">-{{ report.discount | currency}}</span>
+        </div>
+
+        <h4>
+          Net Sales
+          <span class="pull-right">{{ report.gross_sale - report.discount | currency}}</span>
+        </h4>
+
+        <div>
+          Tax
+          <span class="pull-right">{{ report.tax | currency}}</span>
+        </div>
+
+        <h4>
+          Total Collected
+          <span class="pull-right">{{ report.gross_sale - report.discount + report.tax | currency}}</span>
+        </h4>
+
+        <div>
+          Cash
+          <span class="pull-right">{{ report.cash | currency}}</span>
+        </div>
+
+        <div>
+          Card
+          <span class="pull-right">{{ report.card | currency}}</span>
+        </div>
+
+        <h4>
+          Net total
+          <span class="pull-right">{{ report.gross_sale - report.discount + report.tax | currency}}</span>
+        </h4>
+      </div>
+    </div>
+
+    <div class="padding">
+      <div class="padding">
+        <h4>
+          CATEGORY SALES
+          <span class="pull-right">GROSS SALES</span>
+        </h4>
+
+        <div ng-repeat="cat in report.categories">
+          {{ cat.name }}
+          <span class="pull-right">{{ cat.total | currency}}</span>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

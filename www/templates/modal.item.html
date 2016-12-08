@@ -1,0 +1,45 @@
+<ion-modal-view>
+  <ion-header-bar class="bar bar-stable bar-no-border">
+    <div class="buttons" ng-click="cancelAddItem()">
+      <button class="button">Cancel</button>
+    </div>
+    <h1 class="title">{{ currentItem.name }} {{ currentItem.price | currency }}</h1>
+    <div class="button" ng-click="confirmAddItem(currentItem)">
+      <button class="button">Add</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+      <div class="padding-20">
+
+        <!--Choose opiton-->
+        <div ng-repeat="group in currentItem.option_groups">
+          <h5>{{ group.name.toUpperCase() }}</h5>
+
+          <div class="item-option padding" ng-repeat="option in group.options" ng-click="option.active = !option.active"
+               ng-class="{'dark-bg light': option.active}">
+            <span>{{ option.name }}</span>
+            <span class="pull-right">{{ option.price | currency }}</span>
+          </div>
+        </div>
+
+        <!--Note and quantity-->
+        <h5 class="margin-top-30">NOTE AND QUANTITY</h5>
+        <input class="border-bottom-only" type="text" placeholder="Add a note"/>
+        <div class="row item-qty">
+          <div class="col-20">
+            <button class="button button-light" ng-click="minusQuantity(currentItem)">
+              <i class="ion-minus"></i>
+            </button>
+          </div>
+          <div class="col-60 text-center text-2x padding">
+            {{ currentItem.quantity }}
+          </div>
+          <div class="col-20">
+            <button class="button button-light" ng-click="plusQuantity(currentItem)">
+              <i class="ion-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+  </ion-content>
+</ion-modal-view>

@@ -1,0 +1,38 @@
+<!--
+  This template loads for the 'app.item_category' state (app.js)
+  Show list of all catgories
+-->
+<ion-view view-title="All categories">
+  <ion-content class="">
+    <div class="padding">
+      <!-- Search form -->
+      <div class="item-input-inset">
+        <label class="item-input-wrapper">
+          <i class="icon ion-ios-search placeholder-icon"></i>
+          <input type="search" placeholder="Search for category">
+        </label>
+      </div>
+
+      <!-- list of items-->
+      <div class="padding">
+
+        <button class="button button-block button-round calm">Create Category</button>
+
+        <ion-list>
+
+          <ion-item class="item-icon-left pos-item" ng-repeat="category in categories">
+            <div class="icon">
+              <div class="no-image center-align">
+                {{ category.name.substring(0, 2).toUpperCase() }}
+              </div>
+            </div>
+            <div class="padding-left">
+              {{ category.name }}
+
+            </div>
+          </ion-item>
+        </ion-list>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

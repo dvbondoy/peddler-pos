@@ -1,0 +1,34 @@
+<!--
+  This template loads for the 'app.item_discount' state (app.js)
+  Show list of all discounts
+-->
+<ion-view view-title="Discounts">
+  <ion-content class="">
+    <div class="padding">
+      <!-- Search form -->
+      <div class="item-input-inset">
+        <label class="item-input-wrapper">
+          <i class="icon ion-ios-search placeholder-icon"></i>
+          <input type="search" placeholder="Search for discount">
+        </label>
+      </div>
+
+      <!-- list of items-->
+      <div class="padding">
+
+        <button class="button button-block button-round calm">Create Discount</button>
+
+        <ion-list>
+
+          <ion-item class="item-icon-left" ng-repeat="discount in discounts">
+            <i class="icon ion-pricetag"></i>
+            <div class="padding-left">
+              {{ discount.name }}
+              <span class="pull-right" ng-if="discount.rate === null">-{{ discount.amount | currency }}</span>
+              <span class="pull-right" ng-if="discount.amount === null">{{ discount.rate }}%</span>            </div>
+          </ion-item>
+        </ion-list>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

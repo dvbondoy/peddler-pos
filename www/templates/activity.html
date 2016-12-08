@@ -1,0 +1,29 @@
+<!--
+  This template loads for the 'activity_detail' state (app.js)
+  View an activity
+-->
+<ion-view view-title="Activity">
+  <ion-content class="">
+    <!-- Search form -->
+    <div class="item-input-inset">
+      <label class="item-input-wrapper">
+        <i class="icon ion-ios-search placeholder-icon"></i>
+        <input type="search" placeholder="Search for order">
+      </label>
+    </div>
+
+    <!-- list order -->
+    <ion-list ng-repeat="(date, group) in orderGroups">
+      <ion-item class="item-divider">{{ date }}</ion-item>
+      <ion-item class="item-icon-left item-icon-right" ng-repeat="order in group"
+                ui-sref="app.activity_detail({id: order.id})">
+        <i class="icon ion-card"></i>
+        <div>
+          {{ order.total | currency }}
+          <span class="gray pull-right">{{ order.time }}</span>
+        </div>
+        <i class="icon ion-ios-arrow-right"></i>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

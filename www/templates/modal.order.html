@@ -1,0 +1,33 @@
+<ion-modal-view>
+  <ion-header-bar class="bar bar-stable bar-no-border">
+    <div class="buttons" ng-click="closeOrderModal()">
+      <button class="button">Close</button>
+    </div>
+    <h1 class="title">{{ (order.total - order.discount) > 0 ? (order.total - order.discount) : 0 | currency }}</h1>
+    <div class="button" ng-click="clearOrder(currentItem)">
+      <button class="button">Clear</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="padding">
+      <div ng-repeat="item in order.items">
+        <h5>
+          {{ item.name}}
+          <span class="gray" ng-show="item.quantity > 1">x{{ item.quantity }}</span>
+
+          <span class="pull-right">{{ item.subtotal | currency }}</span>
+        </h5>
+        <div ng-repeat="option in item.options" class="padding-left gray">
+          {{ option.name }} {{ option.price | currency }}
+        </div>
+      </div>
+
+      <div ng-show="order.discount > 0">
+        <h5>
+          Discounts
+          <span class="gray pull-right">-{{ order.discount | currency }}</span>
+        </h5>
+      </div>
+    </div>
+  </ion-content>
+</ion-modal-view>

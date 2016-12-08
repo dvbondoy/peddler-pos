@@ -1,0 +1,30 @@
+<!--
+  This template loads for the 'welcome' state (app.js)
+  Show welcome screen
+-->
+<ion-view view-title="Welcome" hide-nav-bar="true" class="login-bg">
+  <ion-content class="welcome-bg stable-bg" scroll="false">
+
+    <div class="welcome-content calm-bg">
+      <!-- Logo -->
+      <div class="text-center">
+        <div class="logo light">
+          <i class="ion-card"></i>
+        </div>
+        <h2 class="light">
+          ion POS
+        </h2>
+        <h4 class="light">
+          Template for POS app
+        </h4>
+      </div>
+    </div>
+
+    <!--buttons-->
+    <div class="welcome-buttons padding-20">
+      <button class="button button-block button-calm" ui-sref="auth.register">Create Account</button>
+      <button class="button button-block button-light button-round calm" ui-sref="auth.login">Sign in</button>
+    </div>
+
+  </ion-content>
+</ion-view>

@@ -1,0 +1,64 @@
+<ion-side-menus>
+
+  <!-- Center content -->
+  <ion-side-menu-content>
+    <ion-nav-bar class="bar-stable bar-no-border" align-title="center">
+      <!-- Back button -->
+      <ion-nav-back-button>
+        Back
+      </ion-nav-back-button>
+
+      <!-- Burger button -->
+      <ion-nav-buttons side="left">
+        <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+        </button>
+      </ion-nav-buttons>
+
+    </ion-nav-bar>
+
+    <!-- Main view content -->
+    <ion-nav-view animation="slide-left-right"></ion-nav-view>
+  </ion-side-menu-content>
+
+  <!-- Left menu -->
+  <ion-side-menu side="left">
+    <ion-content>
+
+      <!-- Menu -->
+      <div class="list" menu-close>
+        <div class="item item-icon-left" ui-sref="app.home">
+          <i class="icon ion-grid"></i>
+          ORDERS
+        </div>
+
+        <div class="item item-icon-left" ui-sref="app.activity">
+          <i class="icon ion-card"></i>
+          ACTIVITY
+        </div>
+
+        <div class="item item-icon-left" ui-sref="app.report">
+          <i class="icon ion-connection-bars"></i>
+          REPORTS
+        </div>
+
+        <div class="item item-icon-left" ui-sref="app.item">
+          <i class="icon ion-ios-browsers"></i>
+          ITEMS
+        </div>
+
+        <div class="item item-icon-left" ui-sref="app.settings">
+          <i class="icon ion-ios-gear"></i>
+          SETTINGS
+        </div>
+
+        <div class="item item-icon-left" ui-sref="auth.help">
+          <i class="icon ion-ios-help"></i>
+          HELP
+        </div>
+      </div>
+
+    </ion-content>
+
+  </ion-side-menu>
+
+</ion-side-menus>

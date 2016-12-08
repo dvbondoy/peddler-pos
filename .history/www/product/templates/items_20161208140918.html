@@ -1,0 +1,30 @@
+<ion-view view-title="Items" ng-controller="ItemsController as vm">
+
+  <ion-nav-buttons side="secondary">
+    <button class="button" ng-click="newItemModal.show()">
+      <i class="icon ion-plus"></i>
+    </button>
+  </ion-nav-buttons>
+  
+  <ion-content>
+    <!--search form-->
+    <div class="item-input-inset">
+      <label class="item-input-wrapper">
+        <i class="icon ion-ios-search placeholder-icon"></i>
+        <input type="search" placeholder="Search">
+      </label>
+    </div>
+
+    <div class="padding">
+      <span ng-show="vm.items.length == 0">Nothing yet!</span>
+      <ion-list>
+        <ion-item ng-repeat="item in vm.items">
+          <div>
+            <span>{{item.description}}</span>
+          </div>
+
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-view>

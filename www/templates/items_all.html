@@ -1,0 +1,41 @@
+<!--
+  This template loads for the 'app.item_all' state (app.js)
+  Show list of all items
+-->
+<ion-view view-title="All items">
+  <ion-content class="">
+    <div class="padding">
+      <!-- Search form -->
+      <div class="item-input-inset">
+        <label class="item-input-wrapper">
+          <i class="icon ion-ios-search placeholder-icon"></i>
+          <input type="search" placeholder="Search for item">
+        </label>
+      </div>
+
+      <!-- list of items-->
+      <div class="padding">
+
+        <button class="button button-block button-round calm">Create Item</button>
+
+        <ion-list>
+
+          <ion-item class="item-icon-left pos-item" ng-repeat="item in items">
+            <div class="icon">
+              <img src="{{ item.image }}" alt="{{ item.name }}" ng-if="item.image"/>
+              <div class="no-image center-align" ng-if="!item.image">
+                {{ item.name.substring(0, 2).toUpperCase() }}
+              </div>
+            </div>
+            <div class="padding-left">
+              {{ item.name }}
+
+              <span class="pull-right" ng-if="item.total_options == 0">{{ item.price | currency }}</span>
+              <span class="pull-right" ng-if="item.total_options > 0">{{ item.total_options }} Prices</span>
+            </div>
+          </ion-item>
+        </ion-list>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

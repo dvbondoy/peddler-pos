@@ -1,0 +1,120 @@
+<!--
+  This template loads for the 'home' state (app.js)
+  Show home screen
+-->
+<ion-view view-title="{{ order.total_items ? 'Current Sale [' + order.total_items + ']' : 'No Sale'}}">
+  <ion-nav-bar class="bar-stable bar-no-border" align-title="center">
+    <!-- Back button -->
+    <ion-nav-back-button>
+      Back
+    </ion-nav-back-button>
+
+    <!-- Burger button -->
+    <ion-nav-buttons side="left">
+      <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+      </button>
+    </ion-nav-buttons>
+
+    <!-- View order button-->
+    <ion-nav-buttons side="right">
+      <button class="button button-icon button-clear ion-grid" ng-click="viewOrderModal()">
+      </button>
+    </ion-nav-buttons>
+
+  </ion-nav-bar>
+  <ion-content class="home-content" scroll="true">
+
+    <!--balance info-->
+    <div class="padding stable-bg">
+      <div class="calm-bg padding text-center light text-2x">
+        <span ng-show="total + result > 0">Charge</span>
+        {{ total + result | currency }}
+      </div>
+    </div>
+
+    <!--tabs-->
+    <div class="inside-tabs tabs stable-bg">
+      <a class="tab-item" ng-click="tab.active = 'keypad'" ng-class="{active: tab.active == 'keypad'}">
+        KEYPAD
+      </a>
+      <a class="tab-item" ng-click="tab.active = 'library'" ng-class="{active: tab.active == 'library'}">
+        LIBRARY
+      </a>
+    </div>
+
+    <div class="tab-view" ng-show="tab.active == 'keypad'">
+      <!--input-->
+      <div class="numpad-result padding">
+        <span class="pull-left text-1x5">Add note</span>
+        <span class="pull-right text-1x5">
+          $<span class="gray">{{ result }}</span>
+        </span>
+      </div>
+
+      <!--onscreen numpad-->
+      <div class="onscreen-numpad has-border">
+
+        <div class="button-bar">
+          <a ng-click="keyPressed(1)" class="button button-block">1</a>
+          <a ng-click="keyPressed(2)" class="button button-block">2</a>
+          <a ng-click="keyPressed(3)" class="button button-block">3</a>
+        </div>
+        <div class="button-bar">
+          <a ng-click="keyPressed(4)" class="button button-block">4</a>
+          <a ng-click="keyPressed(5)" class="button button-block">5</a>
+          <a ng-click="keyPressed(6)" class="button button-block">6</a>
+        </div>
+        <div class="button-bar">
+          <a ng-click="keyPressed(7)" class="button button-block">7</a>
+          <a ng-click="keyPressed(8)" class="button button-block">8</a>
+          <a ng-click="keyPressed(9)" class="button button-block">9</a>
+        </div>
+        <div class="button-bar">
+          <a ng-click="keyPressed(-1)" class="button button-block">C</a>
+          <a ng-click="keyPressed(0)" class="button button-block">0</a>
+          <a ng-click="keyPressed(-2)" class="button button-block calm">+</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-view" ng-show="tab.active == 'library'">
+      <div class="border-bottom padding" ng-click="chooseCategory()">
+        <div class="padding text-1x5">
+          {{ filterText }}
+          <span class="pull-right ion-chevron-down"></span>
+        </div>
+      </div>
+
+      <ion-list>
+        <ion-item class="item-icon-left pos-item" ng-repeat="item in items" ng-click="addItem(item)">
+          <div class="icon">
+            <img src="{{ item.image }}" alt="{{ item.name }}" ng-if="item.image"/>
+            <div class="no-image center-align" ng-if="!item.image">
+              {{ item.name.substring(0, 2).toUpperCase() }}
+            </div>
+          </div>
+          <div class="padding-left">
+            {{ item.name }}
+
+            <span class="pull-right" ng-if="item.total_options == 0">{{ item.price | currency }}</span>
+            <span class="pull-right" ng-if="item.total_options > 0">{{ item.total_options }} Prices</span>
+          </div>
+        </ion-item>
+
+        <ion-item class="item-icon-left" ng-repeat="discount in discounts" ng-click="addDiscount(discount)"
+                  ng-class="{'gray': discount.used}">
+          <div class="icon ion-pricetag">
+
+          </div>
+          <div class="padding-left">
+            {{ discount.name }}
+
+            <span class="pull-right" ng-if="discount.rate === null">-{{ discount.amount }}</span>
+            <span class="pull-right" ng-if="discount.amount === null">{{ discount.rate }}%</span>
+          </div>
+        </ion-item>
+
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-view>
