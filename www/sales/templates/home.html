@@ -2,7 +2,7 @@
   This template loads for the 'home' state (app.js)
   Show home screen
 -->
-<ion-view view-title="{{ order.total_items ? 'Current Sale [' + order.total_items + ']' : 'No Sale'}}">
+<ion-view ng-controller="SalesController as vm" view-title="{{vm.order.items.length == 0 ? 'No Sale' : vm.customer.name + ' ( ' + vm.order.total_items + ' )'}}">
   <ion-nav-bar class="bar-stable bar-no-border" align-title="center">
     <!-- Back button -->
     <ion-nav-back-button>
@@ -27,22 +27,25 @@
     <!--balance info-->
     <div class="padding stable-bg">
       <div class="calm-bg padding text-center light text-2x">
-        <span ng-show="total + result > 0">Charge</span>
-        {{ total + result | currency }}
+        <span ng-show="vm.order.total_amount == 0">Charge</span>
+        {{ vm.order.total_amount | currency }}
       </div>
     </div>
 
     <!--tabs-->
     <div class="inside-tabs tabs stable-bg">
-      <a class="tab-item" ng-click="tab.active = 'keypad'" ng-class="{active: tab.active == 'keypad'}">
+      <a class="tab-item" ng-click="vm.tab.active = 'keypad'" ng-class="{active: tab.active == 'keypad'}">
         KEYPAD
       </a>
-      <a class="tab-item" ng-click="tab.active = 'library'" ng-class="{active: tab.active == 'library'}">
+      <a class="tab-item" ng-click="vm.tab.active = 'library'" ng-class="{active: tab.active == 'library'}">
         LIBRARY
+      </a>
+      <a class="tab-item" ng-click="vm.tab.active= 'order'" ng-class="{active: tab.active == 'order'}">
+        ORDER
       </a>
     </div>
 
-    <div class="tab-view" ng-show="tab.active == 'keypad'">
+    <div class="tab-view" ng-show="vm.tab.active == 'keypad'">
       <!--input-->
       <div class="numpad-result padding">
         <span class="pull-left text-1x5">Add note</span>
@@ -77,31 +80,48 @@
       </div>
     </div>
 
-    <div class="tab-view" ng-show="tab.active == 'library'">
-      <div class="border-bottom padding" ng-click="chooseCategory()">
+    <div class="tab-view" ng-show="vm.tab.active == 'library'">
+      <div class="border-bottom padding" ng-click="chooseFilter()">
         <div class="padding text-1x5">
-          {{ filterText }}
+          {{ vm.filterText }}
           <span class="pull-right ion-chevron-down"></span>
         </div>
       </div>
 
       <ion-list>
-        <ion-item class="item-icon-left pos-item" ng-repeat="item in items" ng-click="addItem(item)">
+        <ion-item class="item-icon-left pos-item" ng-repeat="category in vm.categories" ng-if="vm.filterText == 'Categories'" ng-click="getCategoryItems(category);vm.quantity = 1">
           <div class="icon">
             <img src="{{ item.image }}" alt="{{ item.name }}" ng-if="item.image"/>
             <div class="no-image center-align" ng-if="!item.image">
-              {{ item.name.substring(0, 2).toUpperCase() }}
+              {{ category.title.substring(0, 2).toUpperCase() }}
+              <!--{{category.title}}-->
             </div>
           </div>
           <div class="padding-left">
-            {{ item.name }}
+            {{ category.title }}
+
+            <!--<span class="pull-right" ng-if="item.total_options == 0">{{ item.price | currency }}</span>-->
+            <span class="pull-right badge badge-positive">{{ category.items }}</span>
+          </div>
+        </ion-item>
+
+        <ion-item class="item-icon-left pos-item" ng-repeat="item in vm.items" ng-if="vm.filterText == 'All Items'">
+          <div class="icon">
+            <img src="{{ item.image }}" alt="{{ item.name }}" ng-if="item.image"/>
+            <div class="no-image center-align" ng-if="!item.image">
+              {{ item.description.substring(0, 2).toUpperCase() }}
+              <!--{{category.title}}-->
+            </div>
+          </div>
+          <div class="padding-left">
+            {{ item.description }}
 
             <span class="pull-right" ng-if="item.total_options == 0">{{ item.price | currency }}</span>
             <span class="pull-right" ng-if="item.total_options > 0">{{ item.total_options }} Prices</span>
           </div>
         </ion-item>
 
-        <ion-item class="item-icon-left" ng-repeat="discount in discounts" ng-click="addDiscount(discount)"
+        <!--<ion-item class="item-icon-left" ng-repeat="discount in discounts" ng-click="addDiscount(discount)"
                   ng-class="{'gray': discount.used}">
           <div class="icon ion-pricetag">
 
@@ -112,9 +132,27 @@
             <span class="pull-right" ng-if="discount.rate === null">-{{ discount.amount }}</span>
             <span class="pull-right" ng-if="discount.amount === null">{{ discount.rate }}%</span>
           </div>
-        </ion-item>
+        </ion-item>-->
 
       </ion-list>
+    </div>
+
+    <div class="tab-view" ng-show="vm.tab.active == 'order'">
+      <div class="">
+        <ion-list>
+          <ion-item ng-repeat="item in vm.order.items" ng-click="delOrderItem(item)">
+            <div>
+              {{item.description}}
+              <span class="pull-right">{{item.quantity}}@{{item.sale_price | currency}}</span>
+            </div>
+          </ion-item>
+        </ion-list>
+        <div class="padding" ng-if="vm.order.items.length == 0">
+          <h2>
+            Nothing yet!
+          </h2>
+        </div>
+      </div>
     </div>
   </ion-content>
 </ion-view>
