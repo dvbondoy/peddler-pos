@@ -1,0 +1,44 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="buttons">
+      <button class="button" ng-click="categoryItemsModal.hide()">Close</button>
+    </div>
+    <h1 class="title">ITems</h1>
+    <!--<div class="buttons">
+      <button class="button" ng-click="saveItem()">Save</button>
+    </div>-->
+  </ion-header-bar>
+  <ion-content>
+    <div class="">
+      <!--<h5 class="margin-top-30">NOTE AND QUANTITY</h5>-->
+      <!--<input class="border-bottom-only" type="text" placeholder="Add a note"/>-->
+      <div class="row item-qty">
+        <div class="col-20">
+          <button class="button button-light" ng-click="vm.quantity = vm.quantity - 1">
+            <i class="ion-minus"></i>
+          </button>
+        </div>
+        <div class="col-60 text-center text-2x padding">
+          <!--{{ currentItem.quantity }}-->
+          {{vm.quantity}}
+        </div>
+        <div class="col-20">
+          <button class="button button-light" ng-click="vm.quantity = vm.quantity + 1">
+            <i class="ion-plus"></i>
+          </button>
+        </div>
+      </div>
+      <ion-list>
+        <ion-item ng-repeat="item in vm.items" ng-click="addItem(item)">
+          <div>
+            {{item.description}}
+            <span class="pull-right" ng-show="inOrder(item) == true"><i class="icon ion-checkmark-circled"></i></span>
+          </div>
+          <div class="padding" ng-if="vm.order.length === 0">
+            <h2>Nothing yet!</h2>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-modal-view>
