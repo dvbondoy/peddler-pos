@@ -1,0 +1,39 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="buttons">
+      <button class="button" ng-click="newCustomerModal.hide()">Close</button>
+    </div>
+    <h1 class="title">New Customer</h1>
+    <div class="buttons">
+      <button class="button" ng-click="saveCustomer()">Save</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="list">
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Company</span>
+        <input type="text" ng-model="vm.customer.company">
+      </label>
+
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Name</span>
+        <input type="text" ng-model="vm.customer.name">
+      </label>
+
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Contact No.</span>
+        <input type="tel" ng-model="vm.customer.contact_number">
+      </label>
+
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">E-mail</span>
+        <input type="email" ng-model="vm.customer.email">
+      </label>
+
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Address</span>
+        <textarea id="" cols="5" rows="5" ng-model="vm.customer.address"></textarea>
+      </label>
+    </div>
+  </ion-content>
+</ion-modal-view>

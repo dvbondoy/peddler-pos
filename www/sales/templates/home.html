@@ -1,8 +1,5 @@
-<!--
-  This template loads for the 'home' state (app.js)
-  Show home screen
--->
-<ion-view ng-controller="SalesController as vm" view-title="{{vm.order.items.length == 0 ? 'No Sale' : vm.customer.name + ' ( ' + vm.order.total_items + ' )'}}">
+
+<ion-view ng-controller="SalesController as vm" view-title="{{vm.order.items.length == 0 ? 'No Sale' : vm.customer.company + ' ( ' + vm.order.total_items + ' )'}}">
   <ion-nav-bar class="bar-stable bar-no-border" align-title="center">
     <!-- Back button -->
     <ion-nav-back-button>
@@ -17,8 +14,8 @@
 
     <!-- View order button-->
     <ion-nav-buttons side="right">
-      <button class="button button-icon button-clear ion-grid" ng-click="viewOrderModal()">
-      </button>
+      <button class="button button-icon button-clear ion-person-add" ng-click="customerModal.show()"></button>
+      <button class="button button-icon button-clear ion-android-done-all" ng-click="saveSale()"></button>
     </ion-nav-buttons>
 
   </ion-nav-bar>
@@ -50,7 +47,7 @@
       <div class="numpad-result padding">
         <span class="pull-left text-1x5">Add note</span>
         <span class="pull-right text-1x5">
-          $<span class="gray">{{ result }}</span>
+          <span class="gray">Php {{ vm.amount }}</span>
         </span>
       </div>
 
@@ -75,7 +72,8 @@
         <div class="button-bar">
           <a ng-click="keyPressed(-1)" class="button button-block">C</a>
           <a ng-click="keyPressed(0)" class="button button-block">0</a>
-          <a ng-click="keyPressed(-2)" class="button button-block calm">+</a>
+          <!--<a ng-click="keyPressed(-2)" class="button button-block calm">+</a>-->
+          <a ng-click="addPayment()" class="button button-block calm">+</a>
         </div>
       </div>
     </div>

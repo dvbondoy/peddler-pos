@@ -1,0 +1,32 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="buttons">
+      <button class="button" ng-click="customerModal.hide()">Close</button>
+    </div>
+    <h1 class="title">Select Customer</h1>
+    <!--<div class="buttons">
+      <button class="button" ng-click="saveItem()">Save</button>
+    </div>-->
+  </ion-header-bar>
+  <ion-content>
+    <!--search form-->
+    <div class="item-input-inset">
+      <label class="item-input-wrapper">
+        <i class="icon ion-ios-search placeholder-icon"></i>
+        <input type="search" placeholder="Search" ng-model="search">
+      </label>
+    </div>
+
+    <div class="padding">
+      <ion-list>
+        <ion-item ng-repeat="customer in vm.customers | filter : search" ng-click="vm.customer = customer;customerModal.hide()">
+          <div>
+            <h1 class="gray">{{customer.company}}</h1>
+            <span>{{customer.contact_name}}</span>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
+
+  </ion-content>
+</ion-modal-view>
