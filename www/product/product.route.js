@@ -24,6 +24,13 @@
           url: '/items',
           templateUrl: 'product/templates/items.html'
         }
+      },
+      {
+        state: 'app.discounts',
+        config: {
+          url: '/discounts',
+          templateUrl: 'product/templates/discounts.html'
+        }
       }
     ]
   }

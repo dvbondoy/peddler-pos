@@ -5,7 +5,8 @@
     .module('app.product')
     .factory('Product', Product)
     .factory('Category', ['$q', Category])
-    .factory('Items', ['$q', Items]);
+    .factory('Items', ['$q', Items])
+    .factory('Discounts', ['$q', Discounts]);
 
   function Product() {
 
@@ -82,6 +83,34 @@
     }
 
     function remove() {
+      
+    }
+  }
+
+  function Discounts($q) {
+    return {
+      get:get,
+      add:add,
+      remove:remove
+    };
+
+    function get() {
+      return $q.when(_db.allDocs({
+        include_docs:true,
+        startkey:'discounts_',
+        endkey:'discounts_\uffff'
+      })).then(function(docs){
+        return docs.rows.map(function(row){
+          return row.doc;
+        });
+      });
+    }
+
+    function add(discount) {
+      return $q.when(_db.put(discount));
+    }
+
+    function remove(discount) {
       
     }
   }

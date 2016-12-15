@@ -3,6 +3,7 @@
 
   angular.module('app', [
     'ionic',
+    'angularMoment',
     'app.core',
     'app.layout',
     'app.settings',

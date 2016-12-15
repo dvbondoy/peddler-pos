@@ -1,0 +1,19 @@
+<ion-view view-title="Discounts" ng-controller="DiscountController as vm">
+  <ion-nav-buttons side="secondary">
+    <button class="button" ng-click="newDiscountModal.show()">
+      <i class="icon ion-plus"></i>
+    </button>
+  </ion-nav-buttons>
+  <ion-content>
+    <div class="padding">
+      <ion-list>
+        <ion-item ng-if="vm.discounts.length == 0">Nothing yet!</ion-item>
+        <ion-item ng-repeat="discount in vm.discounts">
+          <div>
+            <span>{{discount.title}}</span>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-view>

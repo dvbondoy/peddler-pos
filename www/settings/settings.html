@@ -5,20 +5,49 @@
 <ion-view view-title="Settings">
   <ion-content class="">
     <div class="padding">
+      <h4 class="gray padding-left">GENERAL OPTIONS</h4>
+      <ion-list>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">User ID: some_user_ID</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Server Addr: http://server.com</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+      </ion-list>
+    </div>
+    <div class="padding">
       <h4 class="gray padding-left">PRODUCTS OPTIONS</h4>
       <ion-list>
         <ion-item class="item-icon-right no-border">
           <div ui-sref="app.categories">
             <span class="bold">Categories</span>
           </div>
-          <i class="icon ion ion-ios-arrow-right"></i>
+          <i class="icon ion-ios-arrow-right"></i>
         </ion-item>  
         <ion-item class="item-icon-right no-border">
           <div ui-sref="app.items">
             <span class="bold">Items</span>
           </div>
-          <i class="icon ion ion-ios-arrow-right"></i>
+          <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
+        <!--<ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Taxes</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Discounts</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>-->
       </ion-list>
 
       <h4 class="gray padding-left">PEOPLE OPTIONS</h4>
@@ -27,6 +56,13 @@
           <div ui-sref="app.customers">
             <span class="bold">Customers</span>
           </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Contacts</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
       </ion-list>
       
@@ -36,6 +72,13 @@
           <div>
             <span class="bold">Taxes</span>
             <span class="pull-right">1 Active</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div ui-sref="app.discounts">
+            <span class="bold">Discounts</span>
+            <span class="pull-right">3 Active</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>

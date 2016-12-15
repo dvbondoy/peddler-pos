@@ -5,7 +5,8 @@
     .module('app.product')
     .controller('ProductController', ProductController)
     .controller('CategoriesController', CategoriesController)
-    .controller('ItemsController', ItemsController);
+    .controller('ItemsController', ItemsController)
+    .controller('DiscountController', DiscountController);
 
   ProductController.$inject = ['$scope', 'Product'];
   function ProductController($scope, Product) {
@@ -139,4 +140,44 @@
     }
     
   }
+
+  DiscountController.$inject = ['$scope', 'Discounts', '$ionicModal'];
+  function DiscountController($scope, Discounts, $ionicModal) {
+    var vm = this;
+
+    vm.discounts;
+    vm.discount = {};
+
+    getDiscounts();
+
+    // prep modals
+    $ionicModal.fromTemplateUrl('product/templates/new-discount-modal.html', {
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal) {
+      $scope.newDiscountModal = modal;
+    });
+
+    $scope.save = function() {
+      $scope.newDiscountModal.hide();
+      var percent = vm.discount.percent / 100;
+      var new_discount = {
+        "_id":"discounts_"+percent,
+        "title":vm.discount.title,
+        "percent":percent
+      };
+
+      Discounts.add(new_discount);
+
+      getDiscounts();
+    }
+
+    function getDiscounts() {
+      Discounts.get().then(function(data) {
+        vm.discounts = data;
+        console.log(data);
+      });
+    }
+  }
+
 })();

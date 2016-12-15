@@ -5,12 +5,13 @@
     .module('app.sales')
     .controller('SalesController', SalesController);
 
-  SalesController.$inject = ['$scope', 'Category', '$ionicActionSheet', 'Items', '$ionicModal', 'Customer', 'Sales'];
-  function SalesController($scope, Category, $ionicActionSheet, Items, $ionicModal, Customer, Sales) {
+  SalesController.$inject = ['$scope', 'Category', '$ionicActionSheet', 'Items', '$ionicModal', 'Customer', 'Sales', 'Discounts', 'moment'];
+  function SalesController($scope, Category, $ionicActionSheet, Items, $ionicModal, Customer, Sales, Discounts, moment) {
     var vm = this;
     vm.categories; //will store all categories
     vm.items; //will store all items
     vm.customers; //will store all customers
+    vm.discounts;
     vm.category;  //will store a category
     vm.item;  //will store an item
     vm.quantity = 1;  //default order quantity
@@ -20,10 +21,14 @@
     vm.order = {  //will store orders
       items:[],
       customer:{},
-      discount:0,
+      discount:null,
+      tax:null,
       total_items:0,
       total_count:0,
-      total_amount:0
+      subtotal:0,
+      due_date:null,
+      date:null,
+      total:0
     };
     vm.customer = { //default customer
       company:'Walk-In',
@@ -48,6 +53,7 @@
     getCategories();
     getItems();
     getCustomers();
+    getDiscounts();
     
     /**
      * Utility function
@@ -81,6 +87,16 @@
       });
     }
 
+    /**
+     * Utility function
+     * Fetch discounts
+     */
+    function getDiscounts() {
+      Discounts.get().then(function(data) {
+        vm.discounts = data;
+      });
+    }
+
     $ionicModal.fromTemplateUrl('sales/templates/category-items-modal.html', {
       scope: $scope,
       animation: 'slide-in-up'
@@ -93,6 +109,13 @@
       animation:'slide-in-up'
     }).then(function(modal) {
       $scope.customerModal = modal;
+    });
+
+    $ionicModal.fromTemplateUrl('sales/templates/payment-details-modal.html', {
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal) {
+      $scope.paymentDetailsModal = modal;
     });
 
     $scope.chooseFilter = function() {
@@ -180,10 +203,21 @@
         // console.log(vm.order.items[i].amount);
       }
 
+      if(vm.order.discount !== null) {
+        var discount = vm.order.discount.percent * amount;
+        vm.order.discount.amount = discount;
+        vm.order.total = amount - discount;
+      } else {
+        vm.order.total = amount;
+      }
+
       vm.order.total_items = vm.order.items.length;
       vm.order.total_count += vm.quantity;
-      vm.order.total_amount = amount;
+      vm.order.subtotal = amount;
       vm.order.customer = vm.customer;
+
+      console.log('amount due');
+      console.log(vm.order.total);
     }
 
     /**
@@ -224,27 +258,30 @@
      * Vars used are vm.order and vm.customer
      */
     $scope.saveSale = function() {
-      var date = Date.now();
+      var now = moment();
       var payment = totalPayment();
       var sale = {
-        "_id":"sales_" + date,
+        "_id":"sales_" + now,
         "items":vm.order.items,
         "customer":vm.customer,
         "payment":vm.payment,
         "discount":vm.order.discount,
         "total_items":vm.order.total_items,
         "total_count":vm.order.total_count,
-        "total_amount":vm.order.total_amount
+        "subtotal":vm.order.subtotal,
+        "due_date":vm.order.due_date,
+        "date":now,
+        "total":vm.order.total
       };
 
-      if(payment < vm.order.total_amount) {
+      if(payment < vm.order.subtotal) {
         alert('Insufficient Payment');
       } else {
         Sales.add(sale);
         //reset some Vars
         vm.order.items = [];
         vm.payment = {};
-        vm.customer.company = 'Walk_In';
+        vm.customer.company = 'Walk-In';
         vm.amount = 0;
 
         Sales.get().then(function(data){
@@ -252,8 +289,8 @@
         });
       }
 
-      if(payment > vm.order.total_amount) {
-        var change = payment - vm.order.total_amount;
+      if(payment > vm.order.subtotal) {
+        var change = payment - vm.order.subtotal;
         alert("CHANGE: Php " + change);
       }
     }
@@ -279,14 +316,31 @@
               vm.payment.cash.amount = vm.amount;
               break;
             case 1:
+              var days = prompt("Enter number of Days.", "15");
+              var due = moment().add(days, "days");
+              // var due = new Date(new Date().getTime() + (5*24*60*60*1000));
+              console.log(due);
+              vm.payment.terms.amount = vm.amount;
+              vm.payment.terms.days = days;
+              vm.order.due_date = due;
+              //date.setTime( date.getTime() + days * 86400000 );
               break;
             case 2:
               break;
           }
-          console.log(vm.payment);
+          // console.log(vm.payment);
           return true;
         }
       });
+    }
+
+    $scope.addDiscount = function(discount) {
+      if(vm.order.items.length !== 0) {
+        vm.order.discount = discount;
+        updateOrder();  
+      } else {
+        alert('Nothing to discount. Select item first.');
+      }
     }
 
     function totalPayment() {
