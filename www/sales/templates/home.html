@@ -24,8 +24,8 @@
     <!--balance info-->
     <div class="padding stable-bg" ng-click="paymentDetailsModal.show()">
       <div class="calm-bg padding text-center light text-2x">
-        <span ng-show="vm.order.subtotal == 0">Charge</span>
-        {{ vm.order.subtotal | currency : "Php " }}
+        <span ng-show="vm.order.total == 0">Charge</span>
+        {{ vm.order.total | currency : "Php " }}
       </div>
     </div>
 
@@ -144,6 +144,9 @@
     <div class="tab-view" ng-show="vm.tab.active == 'order'">
       <div class="">
         <ion-list>
+          <ion-item ng-if="vm.order.items.length == 0">
+            <div>No item selected yet</div>
+          </ion-item>
           <ion-item ng-repeat="item in vm.order.items" ng-click="delOrderItem(item)">
             <div>
               {{item.description}}
@@ -151,11 +154,11 @@
             </div>
           </ion-item>
         </ion-list>
-        <div class="padding" ng-if="vm.order.items.length == 0">
+        <!--<div class="padding" ng-if="vm.order.items.length == 0">
           <h2>
             Nothing yet!
           </h2>
-        </div>
+        </div>-->
       </div>
     </div>
   </ion-content>

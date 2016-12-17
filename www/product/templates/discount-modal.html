@@ -1,0 +1,28 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="buttons">
+      <button class="button" ng-click="discountModal.hide()">Close</button>
+    </div>
+    <h1 class="title" ng-show="vm.action == 'add'">New Discount</h1>
+    <h1 class="title" ng-show="vm.action == 'edit'">Edit Discount</h1>
+    
+    <div class="buttons">
+      <button class="button" ng-if="vm.action == 'add'" ng-click="save()">Save</button>
+      <button class="button" ng-if="vm.action == 'edit'" ng-click="update()">Update</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="padding-list">
+      <label class="item item-input">
+        <span class="input-label">Title</span>
+        <input type="text" ng-model="vm.discount.title">
+      </label>
+      <label class="item item-input">
+        <span class="input-label">Percent</span>
+        <input type="text" ng-model="vm.discount.percent">
+      </label>
+
+      <button class="button button-block button-assertive" ng-if="vm.action=='edit'" ng-click="remove()">Delete</button>
+    </div>
+  </ion-content>
+</ion-modal-view>

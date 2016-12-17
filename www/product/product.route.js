@@ -31,6 +31,13 @@
           url: '/discounts',
           templateUrl: 'product/templates/discounts.html'
         }
+      },
+      {
+        state: 'app.discount',
+        config: {
+          url: '/tax',
+          templateUrl: 'product/templates/tax.html'
+        }
       }
     ]
   }

@@ -274,13 +274,14 @@
         "total":vm.order.total
       };
 
-      if(payment < vm.order.subtotal) {
+      if(payment < vm.order.total) {
         alert('Insufficient Payment');
       } else {
         Sales.add(sale);
         //reset some Vars
         vm.order.items = [];
-        vm.payment = {};
+        vm.order.total = 0;
+        vm.payment = {cash:{},terms:{},check:[]};
         vm.customer.company = 'Walk-In';
         vm.amount = 0;
 
@@ -289,8 +290,8 @@
         });
       }
 
-      if(payment > vm.order.subtotal) {
-        var change = payment - vm.order.subtotal;
+      if(payment > vm.order.total) {
+        var change = payment - vm.order.total;
         alert("CHANGE: Php " + change);
       }
     }
@@ -396,6 +397,7 @@
      */
     function enter(keyCode) {
       vm.amount = vm.amount * 10 + parseInt(keyCode.toString());
+      console.log(vm.amount);
     }
 
   }

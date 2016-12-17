@@ -1,0 +1,28 @@
+<ion-view view-title="Taxes" ng-controller="TaxController as vm">
+  <ion-nav-buttons side="secondary">
+    <button class="button" ng-click="vm.action='new';taxModal.show()">
+      <i class="icon ion-plus"></i>
+    </button>
+  </ion-nav-buttons>
+  <ion-content>
+    <div>
+      <ion-list>
+        <ion-item>
+          Apply default tax on every sale
+          <label class="toggle toggle-small pull-right">
+            <input type="checkbox">
+            <div class="track pull">
+              <div class="handle"></div>
+            </div>
+          </label>
+        </ion-item>
+        <ion-item ng-repeat="tax in vm.taxes">
+          <div ng-click="vm.action='edit';vm.tax = tax;taxModal.show()">
+            {{tax.title}}
+            <span class="pull-right">{{tax.percent}}%</span>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-view>

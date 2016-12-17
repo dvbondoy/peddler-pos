@@ -6,7 +6,8 @@
     .factory('Product', Product)
     .factory('Category', ['$q', Category])
     .factory('Items', ['$q', Items])
-    .factory('Discounts', ['$q', Discounts]);
+    .factory('Discounts', ['$q', Discounts])
+    .factory('Tax', ['$q', Tax]);
 
   function Product() {
 
@@ -23,12 +24,12 @@
       remove:remove
     };
 
-    function get(start = 'categories_', end='categories_\uffff') {
+    function get() {
       return $q.when(_db.allDocs(
         {
           include_docs:true, 
-          startkey: start, 
-          endkey: end
+          startkey: 'categories_', 
+          endkey: 'categories_\uffff'
         }))
         .then(function(docs) {
           return docs.rows.map(function(row){
@@ -64,12 +65,12 @@
       remove:remove
     };
 
-    function get(start='items_', end='items_\uffff') {
+    function get() {
       return $q.when(_db.allDocs(
         {
           include_docs:true,
-          startkey:start,
-          endkey:end
+          startkey:'items_',
+          endkey:'items_\uffff'
         }
       )).then(function(docs) {
         return docs.rows.map(function(row) {
@@ -87,6 +88,7 @@
     }
   }
 
+  // DISCOUNTS
   function Discounts($q) {
     return {
       get:get,
@@ -100,9 +102,15 @@
         startkey:'discounts_',
         endkey:'discounts_\uffff'
       })).then(function(docs){
-        return docs.rows.map(function(row){
+        var discounts = docs.rows.map(function(row){
           return row.doc;
         });
+
+        // _db.changes({live:true,since:'now',include_docs:true}).on('change', function(change) {
+          
+        // });
+
+        return discounts;
       });
     }
 
@@ -111,7 +119,48 @@
     }
 
     function remove(discount) {
-      
+      return $q.when(_db.get(discount._id).then(function(doc){
+        return _db.remove(doc);
+      }));
+    }
+  }
+
+  function Tax($q) {
+    return {
+      get:get,
+      add:add,
+      update:update,
+      remove:remove
+    };
+
+    function get() {
+      return $q.when(_db.allDocs({
+        include_docs:true,
+        startkey:'taxes_',
+        endkey:'taxes_\uffff'
+      })).then(function(docs) {
+        return docs.rows.map(function(row) {
+          return row.doc;
+        });
+      });
+    }
+
+    function add(tax) {
+      return $q.when(_db.put(tax));
+    }
+
+    function update(tax) {
+      return $q.when(_db.get(tax._id)).then(function(doc) {
+        return _db.put(tax);
+      });
+    }
+
+    function remove(tax) {
+      return $q.when(_db.get(tax._id).then(function(doc){
+        return _db.remove(doc);
+      })).then(function(res){
+        return res;
+      });
     }
   }
 

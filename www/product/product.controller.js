@@ -6,7 +6,8 @@
     .controller('ProductController', ProductController)
     .controller('CategoriesController', CategoriesController)
     .controller('ItemsController', ItemsController)
-    .controller('DiscountController', DiscountController);
+    .controller('DiscountController', DiscountController)
+    .controller('TaxController', TaxController);
 
   ProductController.$inject = ['$scope', 'Product'];
   function ProductController($scope, Product) {
@@ -50,7 +51,7 @@
     function getCategories() {
       Category.get().then(function(data) {
         vm.categories = data;
-        console.log(data);
+        // console.log(data);
       });
     }
   }
@@ -91,7 +92,7 @@
 
     $scope.deleteItems = function() {
       _db.destroy().then(function(res){
-        console.log(res);
+        // console.log(res);
       });
     }
 
@@ -114,10 +115,10 @@
       Items.get('items_'+category._id, 'items_'+category._id+'\uffff').then(function(data) {
         var itemCount = data.length;
         Category.getId(category._id).then(function(data){
-          console.log(data);
+          // console.log(data);
           var cat = data;
           cat.items = itemCount;
-          console.log(cat);
+          // console.log(cat);
           Category.update(cat);
         });
       });
@@ -135,7 +136,7 @@
     function getItems() {
       Items.get().then(function(data) {
         vm.items = data;
-        console.log(data);
+        // console.log(data);
       });
     }
     
@@ -145,22 +146,23 @@
   function DiscountController($scope, Discounts, $ionicModal) {
     var vm = this;
 
+    vm.action = '';
     vm.discounts;
     vm.discount = {};
 
     getDiscounts();
 
     // prep modals
-    $ionicModal.fromTemplateUrl('product/templates/new-discount-modal.html', {
+    $ionicModal.fromTemplateUrl('product/templates/discount-modal.html', {
       scope:$scope,
       animation:'slide-in-up'
     }).then(function(modal) {
-      $scope.newDiscountModal = modal;
+      $scope.discountModal = modal;
     });
 
     $scope.save = function() {
-      $scope.newDiscountModal.hide();
-      var percent = vm.discount.percent / 100;
+      $scope.discountModal.hide();
+      var percent = vm.discount.percent;
       var new_discount = {
         "_id":"discounts_"+percent,
         "title":vm.discount.title,
@@ -172,11 +174,93 @@
       getDiscounts();
     }
 
+    $scope.remove = function() {
+      Discounts.remove(vm.discount).then(function(res){
+        if(res.ok){
+          $scope.discountModal.hide();
+          vm.discounts.splice(vm.discounts.indexOf(vm.discount),1);
+          alert(res.id + ' deleted');
+        }
+      });
+    }
+
+    $scope.update = function() {
+      
+    }
+
     function getDiscounts() {
       Discounts.get().then(function(data) {
         vm.discounts = data;
-        console.log(data);
+        // console.log(data);
       });
+    }
+
+    $scope.testSync = function() {
+      var remoteDB = new PouchDB('http://root:toor@192.168.8.101:5984/test');
+      _db.replicate.to(remoteDB).on('complete',function(){
+        alert('sync success');
+      }).on('error', function(error){
+        // console.log(JSON.stringify(error));
+      });
+    }
+  }
+
+  TaxController.$inject = ['$scope', 'Tax', '$ionicModal'];
+  function TaxController($scope, Tax, $ionicModal) {
+    var vm = this;
+
+    vm.tax = {};
+    vm.action = 'view';
+    vm.taxes;// = getTaxes();
+
+    getTaxes();
+    // prep modals
+    $ionicModal.fromTemplateUrl('product/templates/tax-modal.html', {
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal) {
+      $scope.taxModal = modal;
+    });
+
+    function getTaxes() {
+      Tax.get().then(function(data) {
+        // console.log(data);
+        vm.taxes = data;
+      });
+    }
+
+    $scope.saveTax = function(tax) {
+      $scope.taxModal.hide();
+      var new_tax = {
+        "_id":"taxes_"+tax.percent,
+        "title":tax.title,
+        "percent":tax.percent
+      };
+      // insert
+      Tax.add(new_tax);
+      // retrieve
+      getTaxes();
+    }
+
+    $scope.updateTax = function(tax) {
+      // console.log(tax);
+      // var tax = vm.tax;
+      Tax.update(tax).then(function(res) {
+        // console.log(res);
+      });
+      getTaxes();
+    }
+
+    $scope.deleteTax = function(tax) {
+      // console.log(tax);
+      $scope.taxModal.hide();
+      Tax.remove(tax).then(function(res){
+        // console.log(res);
+      }).catch(function(error){
+        // console.log(error);
+      });
+
+      getTaxes();
     }
   }
 
