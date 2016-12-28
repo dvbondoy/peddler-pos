@@ -2,26 +2,71 @@
   This template loads for the 'settings' state (app.js)
   Show app settings
 -->
-<ion-view view-title="Settings">
+<ion-view view-title="Settings" ng-controller="SettingsController as vm">
   <ion-content class="">
     <div class="padding">
-      <h4 class="gray padding-left">GENERAL OPTIONS</h4>
+      <h4 class="gray padding-left">
+        GENERAL OPTIONS
+        <i class="icon ion-locked pull-right" ng-click="goLock()"></i>
+      </h4>
       <ion-list>
         <ion-item class="item-icon-right no-border">
-          <div>
-            <span class="bold">User ID: some_user_ID</span>
+          <div ng-click="setUserID()">
+            <span class="bold">User ID: {{vm.USER_ID.userId}}</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
         <ion-item class="item-icon-right no-border">
-          <div>
-            <span class="bold">Server Addr: http://server.com</span>
+          <div ng-click="serverListModal.show()">
+            <span class="bold">Servers List</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div ui-sref="app.database">
+            <span class="bold">Database</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
       </ion-list>
+      <h4 class="gray padding-left">
+        Sync Data
+      </h4>
+      <ion-list>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Sync Inventory</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Sync Sales</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div ng-click="updateItems()">
+            <span class="bold">Update Items</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div ng-click="updateCustomers()">
+            <span class="bold">Update Customers</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Update All</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+      </ion-list>
+      <!--<button class="button button-block button-positive">Sync Now</button>-->
 
-      <h4 class="gray padding-left">PRODUCTS OPTIONS</h4>
+      <!--<h4 class="gray padding-left">PRODUCTS OPTIONS</h4>
       <ion-list>
         <ion-item class="item-icon-right no-border">
           <div ui-sref="app.categories">
@@ -35,9 +80,9 @@
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
-      </ion-list>
+      </ion-list>-->
 
-      <h4 class="gray padding-left">PEOPLE OPTIONS</h4>
+      <!--<h4 class="gray padding-left">PEOPLE OPTIONS</h4>
       <ion-list>
         <ion-item class="item-icon-right no-border">
           <div ui-sref="app.customers">
@@ -51,24 +96,24 @@
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
-      </ion-list>
+      </ion-list>-->
       
       <h4 class="gray padding-left">CHECKOUT OPTIONS</h4>
       <ion-list>
-        <ion-item class="item-icon-right no-border">
+        <!--<ion-item class="item-icon-right no-border">
           <div ui-sref="app.discount">
             <span class="bold">Taxes</span>
             <span class="pull-right">1 Active</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
-        </ion-item>
-        <ion-item class="item-icon-right no-border">
+        </ion-item>-->
+        <!--<ion-item class="item-icon-right no-border">
           <div ui-sref="app.discounts">
             <span class="bold">Discounts</span>
             <span class="pull-right">3 Active</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
-        </ion-item>
+        </ion-item>-->
         <ion-item class="item-icon-right no-border">
           <div>
             <span class="bold">Open ticket</span>

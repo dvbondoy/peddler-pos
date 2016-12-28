@@ -1,0 +1,13 @@
+<ion-view view-title="Database" ng-controller="ProductController as vm">
+  <ion-content>
+    <div class="padding">
+      <button class="button button-block button-assertive" ng-click="purgeDatabase()">Purge Database</button>
+      <button class="button button-block" ng-click="getItems()">Test Get</button>
+      <button class="button button-block" ng-click="testSync()">Test Sync</button>
+      <button class="button button-block" ng-click="sync()">Sync Items</button>
+      <button class="button button-block" ng-click="createFilter()">CreateFilter</button>
+      <button disabled class="button button-block" ng-click="uploadItems()">Upload Items</button>
+    </div>
+    
+  </ion-content>
+</ion-view>

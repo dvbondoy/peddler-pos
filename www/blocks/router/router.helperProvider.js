@@ -39,7 +39,7 @@
       function configureStates(states, otherwisePath) {
         states.forEach(function (state) {
           $stateProvider.state(state.state, state.config);
-          console.log(state);
+          // console.log(state);
         });
 
         if (otherwisePath && !hasOtherwise) {

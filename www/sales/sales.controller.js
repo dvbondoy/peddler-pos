@@ -3,17 +3,266 @@
 
   angular
     .module('app.sales')
-    .controller('SalesController', SalesController);
+    .controller('SalesController', SalesController)
+    .controller('SalesCtrl', SalesCtrl);
+  
+  SalesCtrl.$inject = ['$scope', '$ionicActionSheet', '$ionicModal', '$ionicLoading','$q'];
+  function SalesCtrl($scope,$ionicActionSheet,$ionicModal,$ionicLoading,$q) {
+    var vm = this;
+    // VIEW MODEL VARIABLES======================================================
+    vm.ITEMS = [];
+    vm.CATEGORIES;
+    vm.CUSTOMERS;
+    // vm.PCATEGORIES;
+
+    vm.filterText = 'Categories';
+    vm.tab = {active:'library'};
+    vm.onCategory = false;
+    vm.quantity = 1;  //order quantity
+    vm.amount = 0;  // payment amount
+    vm.customer = {name:'Walk-In'};
+    vm.order = {  //will store orders
+      items:[],
+      customer:{},
+      discount:null,
+      tax:null,
+      total_items:0,
+      total_count:0,
+      subtotal:0,
+      due_date:null,
+      date:null,
+      total:0
+    };
+    vm.payment = {  //payment methods
+      cash:{
+        amount:0
+        },
+      check:[],
+      terms:{
+        amount:0,
+        days:0
+        }
+    };
+   
+
+    // LOCAL VARIABLES===========================================================
+    var activePCategory;
+
+    // MODAL VIEWS HERE =============================================
+    $ionicModal.fromTemplateUrl('sales/templates/items-modal.html',{
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal){
+      $scope.itemsModal = modal;
+    });
+
+    $ionicModal.fromTemplateUrl('sales/templates/payment-details-modal.html',{
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal){
+      $scope.paymentDetailsModal = modal;
+    });
+
+    // DISPLAY PRODUCTS =============================================
+    // get parent categories
+    getParentCategories();
+
+    function getParentCategories() {
+      $q.when(_db.query('items_ddoc/pcategories',{group:true},function(error,result){
+        var pcats = [];
+        result.rows.forEach(function(row){
+          pcats.push(row.key[0]);
+        });
+        // console.log(pcats);
+        vm.CATEGORIES = pcats;
+      }));
+    }
+
+    $scope.getCategories = function(pcategory) {
+     if(!vm.onCategory) {
+        $q.when(_db.query('items_ddoc/categories',{include_docs:true,startkey:pcategory,endkey:pcategory+'\uffff'},function(error, result){
+          var cats = [];
+          result.rows.forEach(function(row){
+            cats.push(row.doc.CATEGORY);
+          });
+          // get distinct categories
+          vm.CATEGORIES = cats.filter((v,i,a) => a.indexOf(v) === i);
+
+          // set flag to true to view items on next click
+          vm.onCategory = true;
+          activePCategory = pcategory;
+        }));
+
+      } else {
+        getItems(activePCategory,pcategory);
+      }
+    }
+
+    function getItems(pcategory,category) {
+      vm.ITEMS = [];
+      $q.when(_db.query('items_ddoc/itemsByCategories',{include_docs:true,key:[pcategory,category]},function(error,result){
+        result.rows.forEach(function(row){
+          vm.ITEMS.push(row.doc);
+        });
+      }));
+      $scope.itemsModal.show();
+    }
+
+    // back button
+    $scope.getPCategories = function() {
+      vm.onCategory = false;
+      getParentCategories();
+    }
+
+    // ORDERS HERE =================================================
+    $scope.addItemOrder = function(item) {
+      var hasItem = false;
+      var items = vm.order.items;
+
+      items.forEach(function(i, idx){
+        if(i._id == item._id) {
+          hasItem = true; 
+          vm.order.items[idx].quantity += vm.quantity;
+          vm.order.items[idx].amount = vm.order.items[idx].quantity * vm.order.items[idx].SALESPRICE;
+        }
+      });
+
+      if(!hasItem) {
+        item.quantity = vm.quantity;
+        item.amount = item.quantity * item.SALESPRICE;
+        vm.order.items.push(item);
+      }
+
+      updateOrder();
+    }
+
+    $scope.removeItemOrder = function(item) {
+      var items = vm.order.items;
+      items.forEach(function(i, idx){
+        if(item._id == i._id) {
+          vm.order.items.splice(idx, 1);
+        }
+      });
+
+      updateOrder();
+    }
+
+    function updateOrder() {
+      var amount = 0;
+
+      // calculate total amount
+      for(var i = 0; i < vm.order.items.length; i++) {
+        amount += vm.order.items[i].amount;
+        // console.log(vm.order.items[i].amount);
+      }
+
+      if(vm.order.discount !== null) {
+        var discount = vm.order.discount.percent * amount;
+        vm.order.discount.amount = discount;
+        vm.order.total = amount - discount;
+      } else {
+        vm.order.total = amount;
+      }
+
+      vm.order.total_items = vm.order.items.length;
+      vm.order.total_count += vm.quantity;
+      vm.order.subtotal = amount;
+      vm.order.customer = vm.customer;
+
+      console.log('amount due');
+      console.log(vm.order.total);
+    }
+
+    $scope.addPayment = function() {
+      var menu = [
+        {text:'Cash'},{text:'Terms'},{text:'Check'}
+      ];
+
+      var hideSheet = $ionicActionSheet.show({
+        buttons: menu,
+        cancelText: 'Cancel',
+        canel:function(){
+
+        },
+        buttonClicked:function(index){
+          switch(index){
+            case 0:
+              vm.payment.cash.amount = vm.amount;
+              break;
+            case 1:
+              var days = prompt("Enter number of Days.", "15");
+              var due = moment().add(days, "days");
+              vm.payment.terms.amount = vm.amount;
+              vm.payment.terms.days = days;
+              vm.order.due_date = due;
+              break;
+            case 2:
+              break;
+          }
+          return true;
+        }
+      });
+
+    }
+
+    $scope.checkOut = function() {
+      
+    }
+
+    $scope.keyPressed = function(keyCode) {
+      // TODO: process keycode here
+      switch (keyCode) {
+        case -1:
+          vm.amount = 0;
+          break;
+        case -2:
+          // addCustomValue();
+          break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 0:
+          enter(keyCode);
+          break;
+        default:
+        // Do nothing
+      }
+    }
+
+     
+    /**
+     * used by keyPressed function
+     * 
+     * @param {any} keyCode
+     */
+    function enter(keyCode) {
+      vm.amount = vm.amount * 10 + parseInt(keyCode.toString());
+      // console.log(vm.amount);
+    }
+
+  }
 
   SalesController.$inject = ['$scope', 'Category', '$ionicActionSheet', 'Items', '$ionicModal', 'Customer', 'Sales', 'Discounts', 'moment'];
   function SalesController($scope, Category, $ionicActionSheet, Items, $ionicModal, Customer, Sales, Discounts, moment) {
     var vm = this;
+
     vm.categories; //will store all categories
+    vm.subcategories;
+    vm.category;  //will store a category
+
     vm.items; //will store all items
+    vm.item;  //will store an item
+
+    vm.onSubCategory = false;
+
     vm.customers; //will store all customers
     vm.discounts;
-    vm.category;  //will store a category
-    vm.item;  //will store an item
     vm.quantity = 1;  //default order quantity
     vm.filterText = 'Categories';
     vm.tab = {active:'library'};  //active tab monitoring
@@ -36,18 +285,13 @@
     };
     vm.payment = {  //payment methods
       cash:{
-        amount:0,
-        notes:''
+        amount:0
         },
       check:[],
       terms:{
         amount:0,
-        days:0,
-        notes:''
-        },
-      total:0,
-      tendered:0,
-      change:0
+        days:0
+        }
     };
     
     getCategories();
@@ -60,7 +304,7 @@
      * Fetch categories
      */
     function getCategories() {
-      Category.get().then(function(data) {
+      Category.getCategories().then(function(data) {
         vm.categories = data; 
         // console.log(data);
       });
@@ -73,6 +317,7 @@
     function getItems() {
       Items.get().then(function(data) {
         vm.items = data;
+        console.log(data);
       });
     }
 
@@ -96,6 +341,13 @@
         vm.discounts = data;
       });
     }
+
+    $ionicModal.fromTemplateUrl('sales/templates/sub-categories-modal.html', {
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal){
+      $scope.subCategoriesModal = modal;
+    });
 
     $ionicModal.fromTemplateUrl('sales/templates/category-items-modal.html', {
       scope: $scope,
@@ -153,11 +405,30 @@
     $scope.getCategoryItems = function(category) {
       vm.category = category;
 
-      Items.get('items_'+category._id, 'items_'+category._id+'\uffff').then(function(data) {
+      Items.getByCategory(category).then(function(data) {
         vm.items = data;
       });
       
       $scope.categoryItemsModal.show();
+    }
+
+    $scope.getSubCategories = function(category) {
+      // $scope.subCategoriesModal.show();
+        vm.onSubCategory = true;
+      Category.getSubCategories(category.category).then(function(data){
+        // vm.subcategories = data;
+        if(data.length == 0) {
+          $scope.getCategoryItems(category.category);
+        } else {
+          vm.categories=data;
+        }
+        console.log(data);
+      });
+    }
+    
+    $scope.getCategories = function(){
+      vm.onSubCategory = false;
+      getCategories();
     }
 
     /**
@@ -260,19 +531,23 @@
     $scope.saveSale = function() {
       var now = moment();
       var payment = totalPayment();
-      var sale = {
-        "_id":"sales_" + now,
-        "items":vm.order.items,
-        "customer":vm.customer,
-        "payment":vm.payment,
-        "discount":vm.order.discount,
-        "total_items":vm.order.total_items,
-        "total_count":vm.order.total_count,
-        "subtotal":vm.order.subtotal,
-        "due_date":vm.order.due_date,
-        "date":now,
-        "total":vm.order.total
-      };
+      // console.log(payment);
+      var sale = vm.order;
+      sale._id = "sales_"+now;
+      sale.date = now;
+      // var sale = {
+      //   "_id":"sales_" + now,
+      //   "items":vm.order.items,
+      //   "customer":vm.customer,
+      //   "payment":vm.payment,
+      //   "discount":vm.order.discount,
+      //   "total_items":vm.order.total_items,
+      //   "total_count":vm.order.total_count,
+      //   "subtotal":vm.order.subtotal,
+      //   "due_date":vm.order.due_date,
+      //   "date":now,
+      //   "total":vm.order.total
+      // };
 
       if(payment < vm.order.total) {
         alert('Insufficient Payment');
@@ -291,7 +566,7 @@
       }
 
       if(payment > vm.order.total) {
-        var change = payment - vm.order.total;
+        var change = payment - vm.order.subtotal;
         alert("CHANGE: Php " + change);
       }
     }
@@ -319,17 +594,13 @@
             case 1:
               var days = prompt("Enter number of Days.", "15");
               var due = moment().add(days, "days");
-              // var due = new Date(new Date().getTime() + (5*24*60*60*1000));
-              console.log(due);
               vm.payment.terms.amount = vm.amount;
               vm.payment.terms.days = days;
               vm.order.due_date = due;
-              //date.setTime( date.getTime() + days * 86400000 );
               break;
             case 2:
               break;
           }
-          // console.log(vm.payment);
           return true;
         }
       });
@@ -397,7 +668,7 @@
      */
     function enter(keyCode) {
       vm.amount = vm.amount * 10 + parseInt(keyCode.toString());
-      console.log(vm.amount);
+      // console.log(vm.amount);
     }
 
   }

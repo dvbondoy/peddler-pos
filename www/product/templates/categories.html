@@ -1,6 +1,6 @@
 <ion-view view-title="Categories List" ng-controller="CategoriesController as vm">
   <ion-nav-buttons side="secondary">
-    <button class="button" ng-click="newCategoryModal.show()">
+    <button class="button" ng-click="newCategory()">
       <i class="icon ion-plus"></i>
     </button>
   </ion-nav-buttons>
@@ -15,10 +15,10 @@
     <div class="padding">
       <ion-list>
         <ion-item class="item-icon-right" ng-repeat="category in vm.categories | filter : search">
-          <div>
-            <span>{{category.title}}</span>
+          <div ng-click="subCategories(category);subCategoryModal.show()">
+            <span>{{category.category}}</span>
             <!--<span class="pull-right">2 Items</span>-->
-            <span class="badge badge-assertive">{{category.items}}</span>      
+            <!--<span class="badge badge-assertive">{{category.items}}</span>      -->
           </div>
         </ion-item>
       </ion-list>

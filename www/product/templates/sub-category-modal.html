@@ -1,0 +1,21 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="button" ng-click="subCategoryModal.hide()">
+      <button class="button">Close</button>
+    </div>
+    <h1 class="title">Sub-Category</h1>
+    <div class="buttons">
+      <button class="button" ng-click="">Save</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="categories in vm.subCategories">
+        <div>
+          <span>{{categories.category}}</span>
+        </div>
+        <!--<span class="pull-right badge badge-positive">{{ categories.items }}</span>-->
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-modal-view>

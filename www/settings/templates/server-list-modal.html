@@ -1,0 +1,31 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="buttons" ng-click="serverListModal.hide()">
+      <button class="button">Close</button>
+    </div>
+    <h1 class="title">Server List</h1>
+    <div class="button"> 
+      <button class="button" ng-click="setServers()">Save</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="list">
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Customers Database</span>
+        <input type="text" ng-model="vm.SERVER_LIST.customers">
+      </label>
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Items Database</span>
+        <input type="text" ng-model="vm.SERVER_LIST.items">
+      </label>
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Sales Database</span>
+        <input type="text" ng-model="vm.SERVER_LIST.sales">
+      </label>
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Inventory Database</span>
+        <input type="text" ng-model="vm.SERVER_LIST.inventory">
+      </label>
+    </div>
+  </ion-content>
+</ion-modal-view>

@@ -18,13 +18,15 @@
 
     return {
       get:get,
-      getId:getId,
+      getAll:getAll,
+      getCategories:getCategories,
+      getSubCategories:getSubCategories,
       add:add,
       update:update,
       remove:remove
     };
 
-    function get() {
+    function getAll() {
       return $q.when(_db.allDocs(
         {
           include_docs:true, 
@@ -38,7 +40,35 @@
         });
     }
 
-    function getId(id) {
+    function getCategories(){
+      return $q.when(_db.allDocs(
+        {
+          include_docs:true, 
+          startkey: 'categories_TOPLEVEL_', 
+          endkey: 'categories_TOPLEVEL_\uffff'
+        }))
+        .then(function(docs) {
+          return docs.rows.map(function(row){
+            return row.doc;
+          });
+        });
+    }
+
+    function getSubCategories(category) {
+      return $q.when(_db.allDocs(
+        {
+          include_docs:true, 
+          startkey: 'categories_'+category, 
+          endkey: 'categories_'+category+'\uffff'
+        }))
+        .then(function(docs) {
+          return docs.rows.map(function(row){
+            return row.doc;
+          });
+        });
+    }
+
+    function get(id) {
       return $q.when(_db.get(id).then(function(doc){
         return doc;
       }));
@@ -61,6 +91,7 @@
   function Items($q) {
     return {
       get:get,
+      getByCategory:getByCategory,
       add:add,
       remove:remove
     };
@@ -74,6 +105,18 @@
         }
       )).then(function(docs) {
         return docs.rows.map(function(row) {
+          return row.doc;
+        });
+      });
+    }
+
+    function getByCategory(category) {
+      return $q.when(_db.allDocs({
+        include_docs:true,
+        startkey:'items_'+category,
+        endkey:'items_'+category+'\uffff'
+      })).then(function(docs){
+        return docs.rows.map(function(row){
           return row.doc;
         });
       });

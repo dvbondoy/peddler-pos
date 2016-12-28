@@ -10,26 +10,27 @@
   </ion-header-bar>
   <ion-content>
     <div class="padding list">
-      <label for="" class="item item-input item-floating-label">
+      <label for="" class="item item-input">
         <span class="input-label">Description</span>
         <input type="text" placeholder="Description" ng-model="item.description"> 
       </label>
-      <!--<label for="" class="item item-input item-floating-label">
-        <span class="input-label">Category</span>
-        <input type="text" placeholder="Category" ng-model="item.category"> 
-      </label>-->
       
-      <label for="" class="item item-input item-floating-label">
+      <label for="" class="item item-input">
         <span class="input-label">Price</span>
         <input type="text" placeholder="Price" ng-model="item.sale_price"> 
       </label>
-      <div class="border-bottom" ng-click="selectCategoryModal.show()">
+
+      <label class="item item-input">
+        <span class="input-label">Category</span>
+        <input type="text" ng-focus="selectCategoryModal.show()" ng-model="item.category.category">
+      </label>
+      <!--<div class="border-bottom" ng-click="selectCategoryModal.show()">
         <div class="padding border text-1x5">
-          {{item.category.title}}
-          <span ng-show="item.category.title == null">Choose Category</span>
+          {{item.category.category}}
+          <span ng-show="item.category.category == null">Choose Category</span>
           <span class="pull-right ion-chevron-down"></span>
         </div>
-      </div>
+      </div>-->
     </div>
   </ion-content>
 </ion-modal-view>

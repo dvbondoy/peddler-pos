@@ -9,49 +9,197 @@
     .controller('DiscountController', DiscountController)
     .controller('TaxController', TaxController);
 
-  ProductController.$inject = ['$scope', 'Product'];
-  function ProductController($scope, Product) {
+  ProductController.$inject = ['$scope', '$http','$q','$ionicLoading'];
+  function ProductController($scope, $http, $q, $ionicLoading) {
     var vm = this;
     
+    $scope.purgeDatabase = function() {
+      _db.destroy().then(function(res){
+        console.log(res);
+      });
+    }
 
-    activate();
+    $scope.getItems = function() {
+      // $http({
+      //   method: 'GET',
+      //   url: 'http://root:toor@localhost:5984/test/_all_docs?startkey="categories"&endkey="categories\uffff"'
+      // }).then(function(res){
+      //   console.log(res);
+      //   alert('sync success');
+      // },function(error){
+      //   console.log(JSON.stringify(error));
+      //   alert(error);
+      // });
+      $q.when(_db.allDocs({include_docs:true}).then(function(data){
+        console.log(data);
+      }));
+    }
 
-    ////////////////
+    $scope.sync = function() {
+      console.log('synching....');
+      $ionicLoading.show({});
+      var remoteDB = new PouchDB('http://admin:nimda@192.168.8.101:5984/gvi/');
+    
+      _db.replicate.from(remoteDB, {view:'_items/all_items'}).on('complete', function(res){
+        console.log(res);
+        $ionicLoading.hide();
+      }).on('error', function(error){
+        alert(error);
+        console.log(JSON.stringify(error));
+      });
+    }
+    
+    $scope.createFilter = function() {
+      console.log('createFilter');
+      var remoteDB = new PouchDB('http://admin:nimda@localhost:5985/gvi')
+      var designFilter = {
+        _id:"_design/my_filter",
+        filters:{
+         myFilter:function(doc){
+           return doc;
+         }.toString() 
+        }
+      };
+      remoteDB.put(designFilter).then(function(){
+        return $q.when(remoteD_DB.query('my_filter',{stale:'update_after'})).then(function(res){
+          console.log(res);
+        });
+      });
+    }
 
-    function activate() { }
+    $scope.testSync = function() {
+      var remoteDB = new PouchDB('http://192.168.8.101:5984/test');
+      _db.replicate.to(remoteDB).on('complete',function(res){
+        console.log('success');
+        console.log(res);
+      }).on('error', function(error){
+        console.log(JSON.stringify(error));
+      });
+    }
+
+    $scope.uploadItems = function() {
+      var i = {
+        "test":[{"blah":"booh"},{"foo":"bar"}]
+      };
+      var items = {"docs":[
+                  {
+                    "_id": "1FCANS",
+                    "DESCRIPTION": "FCANS",
+                    "DESCRIPTIONSALES": "FCANS",
+                    "SALESPRICE": "-0.01",
+                    "GLSALESACCOUNT": "49500",
+                    "STOCKINGUM": "%",
+                    "SALESUMSTOCKINGUNITS": "0",
+                    "AVERAGEMONTHLYSALES": "10",
+                    "PRICECASE": "0",
+                    "CATEGORY": "PROMO",
+                    "SUBCATEGORY": "PROMO"
+                  },
+                  {
+                    "_id": "1FCBOS",
+                    "DESCRIPTION": "FCBOS",
+                    "DESCRIPTIONSALES": "FCBOS",
+                    "SALESPRICE": "-0.01",
+                    "GLSALESACCOUNT": "49600",
+                    "STOCKINGUM": "%",
+                    "SALESUMSTOCKINGUNITS": "0",
+                    "AVERAGEMONTHLYSALES": "11",
+                    "PRICECASE": "0",
+                    "CATEGORY": "PROMO",
+                    "SUBCATEGORY": "PROMO"
+                  },
+                  {
+                    "_id": "1FCDAM",
+                    "DESCRIPTION": "FCDAM",
+                    "DESCRIPTIONSALES": "FCDAM",
+                    "SALESPRICE": "0",
+                    "GLSALESACCOUNT": "49000",
+                    "STOCKINGUM": "%",
+                    "SALESUMSTOCKINGUNITS": "0",
+                    "AVERAGEMONTHLYSALES": "12",
+                    "PRICECASE": "0",
+                    "CATEGORY": "PROMO",
+                    "SUBCATEGORY": "PROMO"
+                  }]};
+      
+      $http({
+        method:'POST',
+        url:'http://localhost:5984/items/_bulk_docs',
+        data:items
+      }).then(function(res){
+        console.log(res);
+      },function(error){
+        console.log(error);
+      });
+    }
   }
 
   CategoriesController.$inject = ['$scope', 'Category', '$ionicModal'];
   function CategoriesController($scope, Category, $ionicModal) {
     var vm = this;
+    vm.top_categories;
     vm.categories;
+    vm.subcategories;
+    vm.category = {category:'',pcategory:'TOPLEVEL'};
 
     getCategories();
 
-    $ionicModal.fromTemplateUrl('product/templates/new-category-modal.html', {
+    $ionicModal.fromTemplateUrl('product/templates/category-modal.html', {
       scope: $scope,
       animation: 'slide-in-up'
     }).then(function(modal) {
       $scope.newCategoryModal = modal;
     });
 
-    $scope.saveCategory = function(category) {
-      var cat = {
-        "_id":"categories_" + category,
-        "type":"categories",
-        "title":category,
-        "items":0
-      };
+    $ionicModal.fromTemplateUrl('product/templates/top-category-modal.html', {
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal){
+      $scope.topCategoryModal = modal;
+    });
 
-      Category.add(cat);
+    $ionicModal.fromTemplateUrl('product/templates/sub-category-modal.html', {
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal){
+      $scope.subCategoryModal = modal;
+    });
+
+    $scope.save = function() {
+      var category = vm.category;
+      category.category = category.category.toUpperCase();
+      category._id = "categories_"+category.pcategory+"_"+category.category
+      
+      console.log(category);
+      Category.add(category);
       getCategories();
       $scope.newCategoryModal.hide();
     }
 
+    $scope.newCategory = function() {
+      vm.category = {category:'',pcategory:'TOPLEVEL'};
+      $scope.newCategoryModal.show();    
+    }
+
+    $scope.changePCategory = function(){
+      $scope.topCategoryModal.show();
+      Category.getCategories().then(function(data){
+        console.log(data);
+        vm.top_categories = data;
+      });
+    }
+
+    $scope.subCategories = function(category){
+      Category.getSubCategories(category.category).then(function(data){
+        console.log(data);
+        vm.subCategories = data;
+      });
+    }
+
     function getCategories() {
-      Category.get().then(function(data) {
+      Category.getCategories().then(function(data) {
         vm.categories = data;
-        // console.log(data);
+        console.log(data);
       });
     }
   }
@@ -60,8 +208,22 @@
   function ItemsController($scope, Items, $ionicModal, Category) {
     var vm = this;
     $scope.item = {};
+    vm.categories;
 
     getItems();
+
+    Category.getAll().then(function(data){
+      var cats = [];
+
+      // get only those sub
+      angular.forEach(data, function(v,k){
+        if(v.pcategory !== 'TOPLEVEL'){
+          this.push(v);
+        }
+      },cats);
+      vm.categories = cats;
+    });
+    
 
     // prep modal windows
     $ionicModal.fromTemplateUrl('product/templates/new-item-modal.html', {
@@ -76,9 +238,9 @@
       animation: 'slide-in-up'
     }).then(function(modal) {
       // get categories
-      Category.get().then(function(data) {
-        vm.categories = data;
-      });
+      // Category.get().then(function(data) {
+      //   vm.categories = data;
+      // });
 
       $scope.selectCategoryModal = modal;
     });
@@ -90,29 +252,20 @@
       $scope.itemDetailsModal = modal;
     });
 
-    $scope.deleteItems = function() {
-      _db.destroy().then(function(res){
-        // console.log(res);
-      });
-    }
+    
 
     // save new item
     $scope.saveItem = function() {
       var item = $scope.item;
       var category = item.category;
 
-      var newItem = {
-        "_id":"items_"+category._id+"_"+item.description,
-        "category_id":category._id,
-        "description":item.description,
-        "image":item.image,
-        "sale_price":item.sale_price
-      };
+      item._id = "items_"+category.category+"_"+item.description;
+      item.category = category.category;
 
       // save
-      Items.add(newItem);
+      Items.add(item);
       // update categories item count
-      Items.get('items_'+category._id, 'items_'+category._id+'\uffff').then(function(data) {
+      Items.getByCategory(category.category).then(function(data) {
         var itemCount = data.length;
         Category.getId(category._id).then(function(data){
           // console.log(data);
@@ -185,7 +338,7 @@
     }
 
     $scope.update = function() {
-      
+
     }
 
     function getDiscounts() {
@@ -195,14 +348,7 @@
       });
     }
 
-    $scope.testSync = function() {
-      var remoteDB = new PouchDB('http://root:toor@192.168.8.101:5984/test');
-      _db.replicate.to(remoteDB).on('complete',function(){
-        alert('sync success');
-      }).on('error', function(error){
-        // console.log(JSON.stringify(error));
-      });
-    }
+    
   }
 
   TaxController.$inject = ['$scope', 'Tax', '$ionicModal'];

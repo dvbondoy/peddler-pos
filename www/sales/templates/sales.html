@@ -1,5 +1,5 @@
 
-<ion-view ng-controller="SalesCtrl as vm" view-title="{{vm.order.items.length == 0 && vm.customer.name == 'Walk-In' ? 'No Sale' : vm.customer.name + ' ( ' + vm.order.total_items + ' )'}}">
+<ion-view ng-controller="SalesController as vm" view-title="{{vm.order.items.length == 0 && vm.customer.company == 'Walk-In' ? 'No Sale' : vm.customer.company + ' ( ' + vm.order.total_items + ' )'}}">
   <ion-nav-bar class="bar-stable bar-no-border" align-title="center">
     <!-- Back button -->
     <ion-nav-back-button>
@@ -87,32 +87,31 @@
       </div>
 
       <ion-list>
-        <ion-item class="item-icon-left pos-item" ng-repeat="category in vm.CATEGORIES" ng-if="vm.filterText == 'Categories'" ng-click="getCategories(category)">
+        <ion-item class="item-icon-left pos-item" ng-repeat="category in vm.categories" ng-if="vm.filterText == 'Categories'" ng-click="getSubCategories(category)">
           <div class="icon">
             <img src="{{ item.image }}" alt="{{ item.name }}" ng-if="item.image"/>
             <div class="no-image center-align" ng-if="!item.image">
-              {{ category.substring(0, 2).toUpperCase() }}
+              {{ category.category.substring(0, 2).toUpperCase() }}
               <!--{{category.title}}-->
             </div>
           </div>
           <div class="padding-left">
-            {{ category}}
+            {{ category.category }}
 
-            <!--<span class="pull-right badge badge-positive">{{ category.items }}</span>-->
+            <span class="pull-right badge badge-positive">{{ category.items }}</span>
           </div>
           <!--<div ng-if="category.pcategory !== 'TOPLEVEL'" ng-click="getSubCategories(category.pcategory)">
             <button class="button button-block">Back</button>
           </div>-->
         </ion-item>
-          <div class="padding" ng-show="vm.onCategory == true">
-            <button class="button button-block" ng-click="getPCategories();">Back</button>
+          <div class="padding" ng-show="vm.onSubCategory == true">
+            <button class="button button-block" ng-click="getCategories();">Back</button>
           </div>  
         <!--search form-->
         <div class="item-input-inset" ng-show="vm.filterText == 'All Items'">
           <label class="item-input-wrapper">
             <i class="icon ion-ios-search placeholder-icon"></i>
             <input type="search" placeholder="Search" ng-model="search">
-            <button class="button">Search</button>
           </label>
         </div>
   
@@ -134,7 +133,7 @@
           </div>
         </ion-item>
 
-        <ion-item class="item-icon-left" ng-repeat="discount in vm.discounts" ng-click="addDiscount(discount)" ng-show"vm.filterText == 'Discounts'">
+        <ion-item class="item-icon-left" ng-repeat="discount in vm.discounts" ng-click="addDiscount(discount)" ng-if="vm.filterText == 'Discounts'">
           <i class="icon ion-pricetag"></i>
           <div class="padding-left">
             {{ discount.title }}
@@ -153,9 +152,9 @@
           <ion-item ng-if="vm.order.items.length == 0">
             <div>No item selected yet</div>
           </ion-item>
-          <ion-item ng-repeat="item in vm.order.items" ng-click="removeItemOrder(item)">
+          <ion-item ng-repeat="item in vm.order.items" ng-click="delOrderItem(item)">
             <div>
-              {{item.DESCRIPTION}}
+              {{item.description}}
               <span class="pull-right">{{item.quantity}}@{{item.sale_price | currency : "Php "}}</span>
             </div>
           </ion-item>

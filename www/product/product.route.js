@@ -38,6 +38,13 @@
           url: '/tax',
           templateUrl: 'product/templates/tax.html'
         }
+      },
+      {
+        state: 'app.database',
+        config: {
+          url: '/database',
+          templateUrl: 'product/templates/database.html'
+        }
       }
     ]
   }
