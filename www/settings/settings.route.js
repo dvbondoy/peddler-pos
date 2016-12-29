@@ -17,6 +17,13 @@
           templateUrl: 'settings/settings.html',
           controller: 'SettingsController'
         }
+      },
+      {
+        state: 'app.inventory',
+        config: {
+          url: '/inventory',
+          templateUrl: 'settings/templates/inventory.html'
+        }
       }
     ]
   }

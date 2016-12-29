@@ -6,8 +6,8 @@
     .controller('SalesController', SalesController)
     .controller('SalesCtrl', SalesCtrl);
   
-  SalesCtrl.$inject = ['$scope', '$ionicActionSheet', '$ionicModal', '$ionicLoading','$q'];
-  function SalesCtrl($scope,$ionicActionSheet,$ionicModal,$ionicLoading,$q) {
+  SalesCtrl.$inject = ['$scope', '$ionicActionSheet', '$ionicModal', '$ionicLoading','$q','SharedProperties'];
+  function SalesCtrl($scope,$ionicActionSheet,$ionicModal,$ionicLoading,$q,SharedProperties) {
     var vm = this;
     // VIEW MODEL VARIABLES======================================================
     vm.ITEMS = [];
@@ -21,6 +21,7 @@
     vm.quantity = 1;  //order quantity
     vm.amount = 0;  // payment amount
     vm.customer = {name:'Walk-In'};
+    vm.isInventory = false; //flag for creating an inventory
     vm.order = {  //will store orders
       items:[],
       customer:{},
@@ -43,10 +44,11 @@
         days:0
         }
     };
-   
 
     // LOCAL VARIABLES===========================================================
     var activePCategory;
+
+    // console.log(SharedProperties.getProperty());
 
     // MODAL VIEWS HERE =============================================
     $ionicModal.fromTemplateUrl('sales/templates/items-modal.html',{
@@ -54,6 +56,13 @@
       animation:'slide-in-up'
     }).then(function(modal){
       $scope.itemsModal = modal;
+    });
+
+    $ionicModal.fromTemplateUrl('sales/templates/customer-modal.html',{
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal){
+      $scope.customerModal = modal;
     });
 
     $ionicModal.fromTemplateUrl('sales/templates/payment-details-modal.html',{
@@ -114,6 +123,35 @@
       getParentCategories();
     }
 
+    $scope.chooseFilter = function() {
+      // console.log(SharedProperties.getProperty());
+      var menu = [
+        {
+          text: 'Categories'
+        },
+        {
+          text: 'All Items'
+        },
+        {
+          text: 'Discounts'
+        }
+      ];
+
+      var hideSheet = $ionicActionSheet.show({
+        buttons: menu,
+        cancelText: 'Cancel',
+        cancel: function() {
+
+        },
+        buttonClicked: function(index) {
+          vm.filterText = menu[index].text;
+          // vm.items = getItems();
+          return true;
+        }
+      });
+    }
+
+
     // ORDERS HERE =================================================
     $scope.addItemOrder = function(item) {
       var hasItem = false;
@@ -173,6 +211,7 @@
       console.log(vm.order.total);
     }
 
+    // PROCESS PAYMENTS ==============================================================
     $scope.addPayment = function() {
       var menu = [
         {text:'Cash'},{text:'Terms'},{text:'Check'}
@@ -202,11 +241,6 @@
           return true;
         }
       });
-
-    }
-
-    $scope.checkOut = function() {
-      
     }
 
     $scope.keyPressed = function(keyCode) {
@@ -244,6 +278,90 @@
     function enter(keyCode) {
       vm.amount = vm.amount * 10 + parseInt(keyCode.toString());
       // console.log(vm.amount);
+    }
+
+    // FINISH SALE AND SAVE TO DATABSE =================================================
+    $scope.checkOut = function() {
+      var now = moment();
+      var payment = totalPayment();
+      var sale = vm.order;
+      var id; //sales representative id
+
+      // get our current user
+      $q.when(_db.get('_local/userId').then(function(data){
+        console.log(data);
+        id = data.userId;
+      }).catch(function(error){
+        console.log(error);
+      }));
+
+      sale._id = "sales_"+now;
+      sale.date = now;
+      sale.userId = id;
+      sale.doc_type = 'sales';
+
+      if(payment < vm.order.total) {
+        alert('Insufficient Payment');
+      } else {
+        $q.when(_db.put(sale).then(function(result){
+          console.log(result);
+        }).catch(function(error){
+          console.log(error);
+        }));
+        //reset some Vars
+        vm.order.items = [];
+        vm.order.total = 0;
+        vm.payment = {cash:{},terms:{},check:[]};
+        vm.customer.company = 'Walk-In';
+        vm.amount = 0;
+      }
+
+      if(payment > vm.order.total) {
+        var change = payment - vm.order.subtotal;
+        alert("CHANGE: Php " + change);
+      }
+    }
+
+    function totalPayment() {
+      var amount = 0;
+      // get cash
+      amount += vm.payment.cash.amount;
+      // get terms
+      amount += vm.payment.terms.amount;
+      // get check
+      for(var i = 0; i < vm.payment.check.length; i++) {
+        amount += vm.payment.check[i].amount;
+      }
+
+      return amount;
+    }
+
+    // INVENTORY
+    $scope.newInventory = function(){
+      $q.when(_db.query('inventory_ddoc/active',{key:'active'},function(error,result){
+        if(result.rows.length > 0) {
+          alert('You have an active inventory. Close it first.');
+        } else {
+          vm.isInventory = true;
+        }
+      }));
+    }
+
+    $scope.saveInventory = function() {
+      var inventory = vm.order;
+      var now = moment();
+
+      inventory._id = 'inventory_'+now;
+      inventory.doc_type = 'inventory';
+      inventory.status = 'active';
+      inventory.date = now;
+
+      $q.when(_db.put(inventory).catch(function(error){
+        console.log(error);
+      }).then(function(result){
+        console.log(result);
+      }));
+
     }
 
   }

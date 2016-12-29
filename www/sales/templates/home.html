@@ -15,7 +15,8 @@
     <!-- View order button-->
     <ion-nav-buttons side="right">
       <button class="button button-icon button-clear ion-person-add" ng-click="customerModal.show()"></button>
-      <button class="button button-icon button-clear ion-android-done-all" ng-click="saveSale()" ng-disabled="vm.order.items.length == 0"></button>
+      <button class="button button-icon button-clear ion-android-done-all ng-hide" ng-hide="vm.isInventory" ng-click="checkOut()" ng-disabled="vm.order.items.length == 0"></button>
+      <button class="button button-icon button-clear ion-android-archive" ng-if="vm.isInventory == true" ng-click="saveInventory()"></button>
     </ion-nav-buttons>
 
   </ion-nav-bar>
@@ -87,7 +88,7 @@
       </div>
 
       <ion-list>
-        <ion-item class="item-icon-left pos-item" ng-repeat="category in vm.CATEGORIES" ng-if="vm.filterText == 'Categories'" ng-click="getCategories(category)">
+        <ion-item class="item-icon-left pos-item" ng-repeat="category in vm.CATEGORIES" ng-show="vm.filterText == 'Categories'" ng-click="getCategories(category)">
           <div class="icon">
             <img src="{{ item.image }}" alt="{{ item.name }}" ng-if="item.image"/>
             <div class="no-image center-align" ng-if="!item.image">
@@ -134,7 +135,7 @@
           </div>
         </ion-item>
 
-        <ion-item class="item-icon-left" ng-repeat="discount in vm.discounts" ng-click="addDiscount(discount)" ng-show"vm.filterText == 'Discounts'">
+        <ion-item class="item-icon-left" ng-repeat="discount in vm.discounts" ng-click="addDiscount(discount)" ng-show="vm.filterText == 'Discounts'">
           <i class="icon ion-pricetag"></i>
           <div class="padding-left">
             {{ discount.title }}

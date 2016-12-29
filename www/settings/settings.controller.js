@@ -3,7 +3,8 @@
 
   angular
     .module('app.settings')
-    .controller('SettingsController', SettingsController);
+    .controller('SettingsController', SettingsController)
+    .controller('InventoryController', InventoryController);
 
   SettingsController.$inject = ['$scope','$q','$ionicModal','$ionicLoading'];
   function SettingsController($scope,$q,$ionicModal,$ionicLoading) {
@@ -11,11 +12,12 @@
     
     vm.USER_ID = {};
     vm.SERVER_LIST = {};
-    vm.GO_LOCK = false;
+    vm.GO_LOCK = false;   //general options lock flag
 
     getUserID();
     getServerList();
 
+    // PREP MODALS =========================================================
     $ionicModal.fromTemplateUrl('settings/templates/server-list-modal.html',{
       scope:$scope,
       animation:'slide-in-up'
@@ -23,6 +25,7 @@
       $scope.serverListModal = modal;
     });
     
+    // USER SETUP =========================================================
     $scope.setUserID = function() {
       var id = prompt('Enter user ID:');
       vm.USER_ID._id = '_local/userId';
@@ -88,6 +91,7 @@
       $q.when(_db.put({_id:'_local/go_password', password:p}));
     }
 
+    // ITEMS SETUP =============================================================
     $scope.updateItems = function() {
       var remote = new PouchDB(vm.SERVER_LIST.items);
 
@@ -99,26 +103,28 @@
       })
       .on('complete',function(result){
 
-        // check items design doc
-        itemsDdoc();
-
+        // check items design doc existince
+        _db.get('_design/items_ddoc').catch(function(error){
+          if(error.message == 'missing') {
+            createItemsDdoc();
+          }
+        });
         $ionicLoading.hide();
-
         alert('Update success');
       }));
     }
 
-    function itemsDdoc(){
-      $q.when(_db.get('_design/items_ddoc').then(function(result){
-        console.log(result);
-      }).catch(function(error){
-        // console.log(error);
-        if(error.message == 'missing'){
-          //create it
-          createItemsDdoc();
-        }
-      }));
-    }
+    // function itemsDdoc(){
+    //   $q.when(_db.get('_design/items_ddoc').then(function(result){
+    //     console.log(result);
+    //   }).catch(function(error){
+    //     // console.log(error);
+    //     if(error.message == 'missing'){
+    //       //create it
+    //       createItemsDdoc();
+    //     }
+    //   }));
+    // }
 
    function createItemsDdoc() {
         var ddoc = {
@@ -154,22 +160,9 @@
       }).catch(function(error){
         console.log(error);
       }));
-
-      // function distinct(value,index,self){
-      //   return self.indexOf(value) === index;
-      // }
-
-      // $q.when(_db.query('my_categories/categories',{startkey:'ALCOHOL',endkey:'ALCOHOL\uffff',include_docs:true},function(err,res){
-      //   var arr = [];
-      //   res.rows.forEach(function(row){
-      //     arr.push(row.doc.CATEGORY);
-      //   });
-      //   // var unique = arr.filter(distinct);
-      //   var unique = arr.filter((v,i,a) => a.indexOf(v) === i);
-      //   console.log(unique);
-      // }));
     }
 
+    // CUSTOMERS SETUP ================================================================
     $scope.updateCustomers = function() {
       var remote = new PouchDB(vm.SERVER_LIST.customers);
       $ionicLoading.show({});
@@ -178,67 +171,106 @@
         alert(error);
       })
       .on('complete',function(result){
+        console.log(result);
+        _db.get('_design/customers_ddoc').catch(function(error){
+          if(error.message == 'missing') {
+            createCustomersDdoc();
+          }
+        });
         $ionicLoading.hide();
       }));
     }
 
-    function temp() {
-              // create design
-        var ddoc = {
-          _id:'_design/dItems',
-          views:{
-            'category': {
-              map:function(doc){
-                emit(doc.CATEGORY);
-             }.toString(),
-             reduce:'_count'
-            },
-           'pcategory':{
-             map:function(doc){
-               emit(doc.PCATEGORY);
-              //  emit(doc.CATEGORY);
-             }.toString(),
-             reduce:'_count'
-           },
-           'byCategory': {
-             map:function(doc){
-               if(doc.PCATEGORY){
-                 emit(doc.PCATEGORY);
-               }
-             }.toString()//,
-            //  reduce:'_count'
-           }
-         }
-        };
-
-        // console.log(ddoc);
-        $q.when(_db.put(ddoc)).then(function(){
-            // console.log(data);
-            _db.query('dItems/category',{stale:'update_after'});
-            // _db_query('dItems/pcategory',{stale:'update_after'});
-        });
-
-        $q.when(_db.query('dItems/byCategory', {key:'ALCOHOL',include_docs:true},function(err,res){
-          if(err){
-            console.log(err);
-          }else{
-            console.log(res);
+    function createCustomersDdoc() {
+      var ddoc = {
+        _id:'_design/customers_ddoc',
+        views:{
+          'zip':{
+            map:function(doc){
+              if(doc.bill_to_zip){
+                emit(doc.bill_to_zip,null);
+              }
+            }.toString(),
+            reduce:'_count'
           }
-        }));
-        // $q.when(_db.query('dItems/category',{group:true}).then(function(result){
-        //   console.log(result);
-        //   result.rows.forEach(function(row){
-        //     console.log(row.key);
-        //   });
-        // }));
+        },
+        'city':{
+          map:function(doc){
+            if(doc.bill_to_city){
+              emit([doc.bill_to_zip,doc.bill_to_city],null);
+            }
+          }.toString()
+        },
+        'address':{
+          map:function(doc){
+            if(doc.bill_to_address_two){
+              emit([doc.bill_to_zip,doc.bill_to_city,doc.bill_to_address_two],null);
+            }
+          }.toString()
+        }
+      };
 
-        // $q.when(_db.query('dItems/pcategory',{key:'PROMO',group:true}).then(function(result){
-        //   result.rows.forEach(function(row){
-        //     console.log(row.key);
-        //   });
-        //   console.log(result);
-        // }));
+      $q.when(_db.put(ddoc).catch(function(error){
+        console.log(error);
+      }).then(function(result){
+        console.log(result);
+      }));
+    }
 
+    // SALES UPLOAD ===================================================================
+    $scope.uploadSales = function() {
+      $ionicLoading.show({});
+      var remote = new PouchDB(vm.SERVER_LIST.sales);
+
+      $q.when(_db.replicate.to(remote,{
+        filter:function(doc){
+          return doc.doc_type == 'sales';
+        }
+      })
+      .on('error',function(error){
+        console.log(error);
+      })
+      .on('complete',function(result){
+        $ionicLoading.hide();
+        console.log(result);
+      }));
+    }
+
+  }
+
+  InventoryController.$inject = ['$scope','$q','SharedProperties']
+  function InventoryController($scope,$q,SharedProperties) {
+
+    $q.when(_db.get('_design/inventory_ddoc').catch(function(error){
+      if(error.message == 'missing') {
+        createInventoryDdoc();
+      }
+    }));
+
+    function createInventoryDdoc() {
+      var ddoc = {
+        _id:'_design/inventory_ddoc',
+        views:{
+          'active':{
+            map:function(doc){
+              if(doc.doc_type == 'inventory'){
+                emit(doc.status,null);
+              }
+            }.toString()
+          }
+        }
+      };
+
+      $q.when(_db.put(ddoc).catch(function(error){
+        console.log(error);
+      }).then(function(result){
+        console.log(result);
+      }));
+    }
+
+    $scope.setInventory = function(value){
+      SharedProperties.setProperty({isInventory:value});
     }
   }
+
 })();

@@ -19,7 +19,10 @@
 
     <div class="padding">
       <ion-list>
-        <ion-item ng-repeat="customer in vm.customers | filter : search" ng-click="vm.customer = customer;customerModal.hide()">
+        <ion-item ng-click="newInventory();customerModal.hide()">
+          <span class="bold">INVENTORY</span>
+        </ion-item>
+        <ion-item ng-repeat="customer in vm.customers | filter : search" ng-click="vm.customer = customer;customerModal.hide();vm.isInventory=false">
           <div>
             <h1 class="gray">{{customer.company}}</h1>
             <span>{{customer.contact_name}}</span>

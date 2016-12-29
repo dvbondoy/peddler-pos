@@ -34,14 +34,14 @@
       </h4>
       <ion-list>
         <ion-item class="item-icon-right no-border">
-          <div>
-            <span class="bold">Sync Inventory</span>
+          <div ui-sref="app.inventory">
+            <span class="bold">Inventories</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
         <ion-item class="item-icon-right no-border">
-          <div>
-            <span class="bold">Sync Sales</span>
+          <div ng-click="uploadSales()">
+            <span class="bold">Upload Sales</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
