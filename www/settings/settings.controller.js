@@ -13,6 +13,28 @@
     vm.USER_ID = {};
     vm.SERVER_LIST = {};
     vm.GO_LOCK = false;   //general options lock flag
+    
+    var firstRun = false;
+
+
+    //FIRST RUN
+    $q.when(_db.info().then(function(info){
+      if(info.doc_count == 0){
+        createDdocs();
+        firstRun = true;
+      }
+    }));
+
+    function createDdocs() {
+      createItemsDdoc();
+      createCustomersDdoc();
+      createInventoryDdoc();
+      createSalesDdoc();
+    }
+
+    $scope.createDdocs = function() {
+      createDdocs();
+    }
 
     getUserID();
     getServerList();
@@ -34,7 +56,7 @@
       // insert user 
       $q.when(_db.put(vm.USER_ID));
 
-      // insert default servers/
+      // create default servers/
       var servers = {
         _id:'_local/server_list',
         customers:'http://admin:nimda@localhost:5984/customers_'+id,
@@ -53,6 +75,7 @@
       });
     }
 
+    // SERVER SETUP =======================================================
     $scope.setServers = function() {
       $scope.serverListModal.hide();
       vm.SERVER_LIST._id = '_local/server_list';
@@ -104,27 +127,99 @@
       .on('complete',function(result){
 
         // check items design doc existince
-        _db.get('_design/items_ddoc').catch(function(error){
-          if(error.message == 'missing') {
-            createItemsDdoc();
-          }
-        });
+        // _db.get('_design/items_ddoc').catch(function(error){
+        //   if(error.message == 'missing') {
+        //     createItemsDdoc();
+        //   }
+        // });
         $ionicLoading.hide();
-        alert('Update success');
+        alert('Items update complete.');
       }));
     }
 
-    // function itemsDdoc(){
-    //   $q.when(_db.get('_design/items_ddoc').then(function(result){
-    //     console.log(result);
-    //   }).catch(function(error){
-    //     // console.log(error);
-    //     if(error.message == 'missing'){
-    //       //create it
-    //       createItemsDdoc();
-    //     }
-    //   }));
-    // }
+
+    // CUSTOMERS SETUP ================================================================
+    $scope.updateCustomers = function() {
+      var remote = new PouchDB(vm.SERVER_LIST.customers);
+      $ionicLoading.show({});
+      $q.when(_db.replicate.from(remote)
+      .on('error',function(error){
+        alert(error);
+      })
+      .on('complete',function(result){
+        console.log(result);
+        // _db.get('_design/customers_ddoc').catch(function(error){
+        //   if(error.message == 'missing') {
+        //     createCustomersDdoc();
+        //   }
+        // });
+        $ionicLoading.hide();
+        alert('Customers update complete.')
+      }));
+    }
+
+
+    // SALES UPLOAD ===================================================================
+    $scope.uploadSales = function() {
+      $ionicLoading.show({});
+      var remote = new PouchDB(vm.SERVER_LIST.sales);
+
+      $q.when(_db.replicate.to(remote,{
+        filter:function(doc){
+          return doc.doc_type == 'sales';
+        }
+      })
+      .on('error',function(error){
+        console.log(error);
+      })
+      .on('complete',function(result){
+        $ionicLoading.hide();
+        console.log(result);
+      }));
+    }
+
+    // DDOCS BELOW ====================================================================
+    function createSalesDdoc() {
+      var ddoc = {
+        _id: '_design/sales_ddoc',
+        views: {
+          'byDate': {
+            map: function(doc) {
+              if(doc.doc_type == 'sales') {
+                emit(doc.date, null);
+              }
+            }.toString()
+          }
+        }
+      };
+
+      $q.when(_db.put(ddoc).catch(function(error){
+        console.log(error);
+      }).then(function(result){
+        console.log(result);
+      }));
+    }
+
+    function createInventoryDdoc() {
+      var ddoc = {
+        _id:'_design/inventory_ddoc',
+        views:{
+          'active':{
+            map:function(doc){
+              if(doc.doc_type == 'inventory'){
+                emit(doc.status,null);
+              }
+            }.toString()
+          }
+        }
+      };
+
+      $q.when(_db.put(ddoc).catch(function(error){
+        console.log(error);
+      }).then(function(result){
+        console.log(result);
+      }));
+    }
 
    function createItemsDdoc() {
         var ddoc = {
@@ -159,25 +254,6 @@
         console.log(result);
       }).catch(function(error){
         console.log(error);
-      }));
-    }
-
-    // CUSTOMERS SETUP ================================================================
-    $scope.updateCustomers = function() {
-      var remote = new PouchDB(vm.SERVER_LIST.customers);
-      $ionicLoading.show({});
-      $q.when(_db.replicate.from(remote)
-      .on('error',function(error){
-        alert(error);
-      })
-      .on('complete',function(result){
-        console.log(result);
-        _db.get('_design/customers_ddoc').catch(function(error){
-          if(error.message == 'missing') {
-            createCustomersDdoc();
-          }
-        });
-        $ionicLoading.hide();
       }));
     }
 
@@ -217,35 +293,30 @@
       }));
     }
 
-    // SALES UPLOAD ===================================================================
-    $scope.uploadSales = function() {
-      $ionicLoading.show({});
-      var remote = new PouchDB(vm.SERVER_LIST.sales);
-
-      $q.when(_db.replicate.to(remote,{
-        filter:function(doc){
-          return doc.doc_type == 'sales';
-        }
-      })
-      .on('error',function(error){
-        console.log(error);
-      })
-      .on('complete',function(result){
-        $ionicLoading.hide();
-        console.log(result);
-      }));
-    }
 
   }
 
-  InventoryController.$inject = ['$scope','$q','SharedProperties']
-  function InventoryController($scope,$q,SharedProperties) {
+  InventoryController.$inject = ['$scope','$q','SharedProperties','$ionicModal']
+  function InventoryController($scope,$q,SharedProperties,$ionicModal) {
+    var vm = this;
 
-    $q.when(_db.get('_design/inventory_ddoc').catch(function(error){
-      if(error.message == 'missing') {
-        createInventoryDdoc();
-      }
-    }));
+    vm.activeInventory;
+
+    $scope.inDetailsModal;
+
+    //PREP MODALS
+    $ionicModal.fromTemplateUrl('settings/templates/inventory-details-modal.html',{
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal){
+      $scope.inDetailsModal = modal;
+    });
+
+    // $q.when(_db.get('_design/inventory_ddoc').catch(function(error){
+    //   if(error.message == 'missing') {
+    //     createInventoryDdoc();
+    //   }
+    // }));
 
     function createInventoryDdoc() {
       var ddoc = {
@@ -268,9 +339,20 @@
       }));
     }
 
-    $scope.setInventory = function(value){
-      SharedProperties.setProperty({isInventory:value});
-    }
+    $q.when(_db.query('inventory_ddoc/active', {
+      include_docs:true,
+      key:'active'
+    },function(error, result) {
+      if(result.rows.length == 1) {
+        vm.activeInventory = result.rows[0].doc;
+        console.log(vm.activeInventory);
+      } else {
+        vm.activeInventory = false;
+      }
+    }).catch(function(error){
+      console.log(error);
+    }));
+
   }
 
 })();

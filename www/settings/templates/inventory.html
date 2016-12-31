@@ -1,8 +1,16 @@
-<ion-view view-title="Inventories" ng-controller="InventoryController">
+<ion-view view-title="Inventories" ng-controller="InventoryController as vm">
   <ion-content>
     <div class="padding">
-      <h2 class="gray">Active Inventory</h2>
-      <button class="button button-block" ng-click="setInventory(true)">Set</button>
+      <h4 class="gray">Active Inventory</h4>
+      <div class="padding-left" ng-if="vm.activeInventory !== false">
+        <div><span>Date: {{vm.activeInventory.date | date:'medium'}}</span></div>
+        <div><span>Total Items: {{vm.activeInventory.total_items}}</span></div>
+        <div><span>Total Count: {{vm.activeInventory.total_count}}</span></div>
+        <button class="button button-block" ng-click="inDetailsModal.show()">See Details...</button>
+      </div>
+      <div ng-if="!vm.activeInventory">
+        <span>No active inventory.</span>
+      </div>
     </div>
   </ion-content>
 </ion-view>

@@ -6,14 +6,15 @@
     .controller('SalesController', SalesController)
     .controller('SalesCtrl', SalesCtrl);
   
-  SalesCtrl.$inject = ['$scope', '$ionicActionSheet', '$ionicModal', '$ionicLoading','$q','SharedProperties'];
-  function SalesCtrl($scope,$ionicActionSheet,$ionicModal,$ionicLoading,$q,SharedProperties) {
+  SalesCtrl.$inject = ['$scope', '$ionicActionSheet', '$ionicModal', '$ionicLoading','$q'];
+  function SalesCtrl($scope,$ionicActionSheet,$ionicModal,$ionicLoading,$q) {
     var vm = this;
     // VIEW MODEL VARIABLES======================================================
     vm.ITEMS = [];
     vm.CATEGORIES;
     vm.CUSTOMERS;
-    // vm.PCATEGORIES;
+    vm.INVENTORY;// = getInventory();//.then(function(result){return result;});
+    // console.log(vm.INVENTORY.then(function(res){return res;}));
 
     vm.filterText = 'Categories';
     vm.tab = {active:'library'};
@@ -75,6 +76,7 @@
     // DISPLAY PRODUCTS =============================================
     // get parent categories
     getParentCategories();
+    getInventory();
 
     function getParentCategories() {
       $q.when(_db.query('items_ddoc/pcategories',{group:true},function(error,result){
@@ -88,14 +90,19 @@
     }
 
     $scope.getCategories = function(pcategory) {
-     if(!vm.onCategory) {
+      function distinct(v,i,s){
+        return s.indexOf(v)===i;
+      }
+
+      if(!vm.onCategory) {
         $q.when(_db.query('items_ddoc/categories',{include_docs:true,startkey:pcategory,endkey:pcategory+'\uffff'},function(error, result){
           var cats = [];
           result.rows.forEach(function(row){
             cats.push(row.doc.CATEGORY);
           });
           // get distinct categories
-          vm.CATEGORIES = cats.filter((v,i,a) => a.indexOf(v) === i);
+          // vm.CATEGORIES = cats.filter((v,i,a) => a.indexOf(v) === i);
+          vm.CATEGORIES = cats.filter(distinct);
 
           // set flag to true to view items on next click
           vm.onCategory = true;
@@ -115,6 +122,20 @@
         });
       }));
       $scope.itemsModal.show();
+    }
+
+    function getInventory() {
+      $q.when(_db.query('inventory_ddoc/active',{
+        include_docs:true,key:'active'
+      },function(error,result){
+        if(result.rows.length == 1){
+          // return result.rows[0].doc;
+          vm.INVENTORY = result.rows[0].doc;
+          // console.log(vm.INVENTORY);
+        }
+      }).catch(function(error){
+        console.log(error);
+      }));
     }
 
     // back button
@@ -172,6 +193,9 @@
       }
 
       updateOrder();
+      if(!vm.isInventory){
+        updateInventory(item,vm.quantity);
+      }
     }
 
     $scope.removeItemOrder = function(item) {
@@ -183,6 +207,9 @@
       });
 
       updateOrder();
+      if(!vm.isInventory){
+        updateInventory(item,-vm.quantity);
+      }
     }
 
     function updateOrder() {
@@ -209,6 +236,15 @@
 
       console.log('amount due');
       console.log(vm.order.total);
+    }
+
+    function updateInventory(item, qty){
+      vm.INVENTORY.items.forEach(function(value, index){
+        if(item._id == value._id){
+          value.sold == undefined ? value.sold = qty : value.sold += qty;
+        }
+      });
+      // console.log(vm.INVENTORY);
     }
 
     // PROCESS PAYMENTS ==============================================================
@@ -308,12 +344,18 @@
         }).catch(function(error){
           console.log(error);
         }));
+        $q.when(_db.put(vm.INVENTORY).then(function(res){
+          console.log(res);
+        }).catch(function(err){
+          console.log(err);
+        }));
         //reset some Vars
         vm.order.items = [];
         vm.order.total = 0;
         vm.payment = {cash:{},terms:{},check:[]};
         vm.customer.company = 'Walk-In';
         vm.amount = 0;
+        getInventory();
       }
 
       if(payment > vm.order.total) {
@@ -355,6 +397,7 @@
       inventory.doc_type = 'inventory';
       inventory.status = 'active';
       inventory.date = now;
+      inventory.customer = null;
 
       $q.when(_db.put(inventory).catch(function(error){
         console.log(error);

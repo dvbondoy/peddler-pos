@@ -1,0 +1,20 @@
+<ion-view view-title="Sales Report" ng-controller="SalesReportController as vm">
+  <ion-content>
+    <div class="padding">
+      <ion-list>
+        <ion-item ng-repeat="item in vm.sales" ng-click="vm.details = item.doc;salesReportModal.show()">
+          <h2 class="gray">
+            {{item.doc.customer.name.toUpperCase()}}
+          </h2> 
+          <div>
+            <span>Date: {{item.doc.date | date:'medium'}}</span>
+          </div>
+          <div>
+            <span>Amount: {{item.doc.total | currency:'Php '}}</span>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
+
+  </ion-content>
+</ion-view>

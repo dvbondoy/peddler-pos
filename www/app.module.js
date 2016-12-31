@@ -9,6 +9,7 @@
     'app.settings',
     'app.product',
     'app.sales',
-    'app.people'
+    'app.people',
+    'app.report'
   ]);
 })();

@@ -1,0 +1,30 @@
+<ion-modal-view>
+   <ion-header-bar>
+    <div class="buttons" ng-click="salesReportModal.hide()">
+      <button class="button">Close</button>
+    </div>
+    <h1 class="title">Sales Report Details</h1>
+    <!--<div class="button"> 
+      <button class="button" ng-click="setServers()">Save</button>
+    </div>-->
+  </ion-header-bar>
+  
+  <ion-content>
+    <div class="padding">
+      <h2 class="gray">{{vm.details.customer.name}}</h2>
+      <ion-list>
+        <ion-item ng-repeat="item in vm.details.items">
+          <div>
+            <span>{{item.DESCRIPTION}}</span>
+          </div>
+          <div>
+            <span>Quantity: {{item.quantity}}</span>
+          </div>
+          <div>
+            <span>Amount: {{item.amount}}</span>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-modal-view>
