@@ -5,10 +5,28 @@
         Sales
       </h4>
       <ion-list>
-        <ion-item ui-sref="app.sales_report" class="no-border">
-          Current Sales
+        <ion-item class="no-border item-icon-right">
+          <div ui-sref="app.daily_activity">
+            <span class="bold">
+              Daily Activity
+            </span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
       </ion-list>
+      <h4 class="gray">
+        Inventory
+      </h4>
+      <ion-list>
+        <ion-item class="no-border item-icon-right">
+          <div ui-sref="app.active_inventory">
+            <span class="bold">Active Inventory</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+      </ion-list>
+      
+      <!--<h4 class="gray">Collectibles</h4>-->
     </div>
   </ion-content>
 </ion-view>

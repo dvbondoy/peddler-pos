@@ -13,8 +13,7 @@
     vm.ITEMS = [];
     vm.CATEGORIES;
     vm.CUSTOMERS;
-    vm.INVENTORY;// = getInventory();//.then(function(result){return result;});
-    // console.log(vm.INVENTORY.then(function(res){return res;}));
+    vm.INVENTORY;
 
     vm.filterText = 'Categories';
     vm.tab = {active:'library'};
@@ -23,6 +22,7 @@
     vm.amount = 0;  // payment amount
     vm.customer = {name:'Walk-In'};
     vm.isInventory = false; //flag for creating an inventory
+    vm.areaFlag = 'zip';
     vm.order = {  //will store orders
       items:[],
       customer:{},
@@ -45,11 +45,9 @@
         days:0
         }
     };
-
     // LOCAL VARIABLES===========================================================
     var activePCategory;
-
-    // console.log(SharedProperties.getProperty());
+    var hasActiveInventory = false;
 
     // MODAL VIEWS HERE =============================================
     $ionicModal.fromTemplateUrl('sales/templates/items-modal.html',{
@@ -74,9 +72,9 @@
     });
 
     // DISPLAY PRODUCTS =============================================
-    // get parent categories
     getParentCategories();
     getInventory();
+    // getCustomersList();
 
     function getParentCategories() {
       $q.when(_db.query('items_ddoc/pcategories',{group:true},function(error,result){
@@ -89,10 +87,11 @@
       }));
     }
 
+    function distinct(v,i,s){
+      return s.indexOf(v)===i;
+    }
+
     $scope.getCategories = function(pcategory) {
-      function distinct(v,i,s){
-        return s.indexOf(v)===i;
-      }
 
       if(!vm.onCategory) {
         $q.when(_db.query('items_ddoc/categories',{include_docs:true,startkey:pcategory,endkey:pcategory+'\uffff'},function(error, result){
@@ -131,10 +130,11 @@
         if(result.rows.length == 1){
           // return result.rows[0].doc;
           vm.INVENTORY = result.rows[0].doc;
+          hasActiveInventory = true;
           // console.log(vm.INVENTORY);
         }
       }).catch(function(error){
-        console.log(error);
+        // console.log(error);
       }));
     }
 
@@ -193,7 +193,7 @@
       }
 
       updateOrder();
-      if(!vm.isInventory){
+      if(!vm.isInventory && hasActiveInventory){
         updateInventory(item,vm.quantity);
       }
     }
@@ -207,7 +207,7 @@
       });
 
       updateOrder();
-      if(!vm.isInventory){
+      if(!vm.isInventory && hasActiveInventory){
         updateInventory(item,-vm.quantity);
       }
     }
@@ -234,8 +234,8 @@
       vm.order.subtotal = amount;
       vm.order.customer = vm.customer;
 
-      console.log('amount due');
-      console.log(vm.order.total);
+      // console.log('amount due');
+      // console.log(vm.order.total);
     }
 
     function updateInventory(item, qty){
@@ -246,6 +246,69 @@
       });
       // console.log(vm.INVENTORY);
     }
+
+    $scope.getCustomerList = function(area,zip,city,address) {
+      switch(area){
+        case 'zip':
+          $q.when(_db.query('customers_ddoc/zip',{group:true},function(err,res){
+            if(err){console.log(err);}
+
+            vm.CUSTOMERS = res.rows;
+            // console.log(vm.CUSTOMERS);
+          }));
+          break;
+        case 'city':
+          // console.log(zip);
+          vm.zip = zip.key;
+          $q.when(_db.query('customers_ddoc/city',{include_docs:true,startkey:zip.key,endkey:zip.key+'\uffff'},function(err,res){
+            if(err){console.log(err);}
+
+            var cities = [];
+            // console.log(res);
+            res.rows.forEach(function(row){
+              cities.push(row.doc.bill_to_city);
+            });
+            vm.CUSTOMERS = cities.filter(distinct);
+            // console.log(vm.CUSTOMERS);
+          }));
+          break;
+        case 'address':
+          vm.city = city;
+          // console.log(vm.zip);
+          // console.log(vm.city);
+
+          $q.when(_db.query('customers_ddoc/address', {include_docs:true,key:[zip,city]},function(err,res){
+            if(err){console.log(err);}
+
+            var address = [];
+            res.rows.forEach(function(row){
+              address.push(row.doc.bill_to_address_two);
+            });
+            vm.CUSTOMERS = address.filter(distinct);
+            // console.log(vm.CUSTOMERS);
+          }));
+          break;
+        case 'customer':
+          $q.when(_db.query('customers_ddoc/customer', {include_docs:true,key:[zip,city,address]},function(err,res){
+            if(err){console.log(err);}
+
+            var customer = [];
+            res.rows.forEach(function(row){
+              customer.push(row.doc);
+            });
+            vm.CUSTOMERS = customer;
+            // console.log(vm.CUSTOMERS);
+          }));
+        break;
+      }
+    }
+
+    // function getCustomersList(zip,city,address) {
+    //   $q.when(_db.query('customers_ddoc/zip',{group:true},function(err,res){
+    //     if(err){console.log(err);}
+    //     vm.CUSTOMERS = res.rows;
+    //   }));
+    // }
 
     // PROCESS PAYMENTS ==============================================================
     $scope.addPayment = function() {
@@ -350,11 +413,7 @@
           console.log(err);
         }));
         //reset some Vars
-        vm.order.items = [];
-        vm.order.total = 0;
-        vm.payment = {cash:{},terms:{},check:[]};
-        vm.customer.company = 'Walk-In';
-        vm.amount = 0;
+        resetVars();
         getInventory();
       }
 
@@ -362,6 +421,15 @@
         var change = payment - vm.order.subtotal;
         alert("CHANGE: Php " + change);
       }
+    }
+
+    function resetVars(){
+      vm.order.items = [];
+      vm.order.total = 0;
+      vm.payment = {cash:{},terms:{},check:[]};
+      vm.customer.company = 'Walk-In';
+      vm.amount = 0;
+      // getInventory();
     }
 
     function totalPayment() {
@@ -378,7 +446,7 @@
       return amount;
     }
 
-    // INVENTORY
+    // INVENTORY ==================================================================
     $scope.newInventory = function(){
       $q.when(_db.query('inventory_ddoc/active',{key:'active'},function(error,result){
         if(result.rows.length > 0) {
@@ -403,6 +471,8 @@
         console.log(error);
       }).then(function(result){
         console.log(result);
+        resetVars();
+        vm.isInventory = false;
       }));
 
     }
@@ -478,7 +548,7 @@
     function getItems() {
       Items.get().then(function(data) {
         vm.items = data;
-        console.log(data);
+        // console.log(data);
       });
     }
 
@@ -489,7 +559,7 @@
     function getCustomers() {
       Customer.get().then(function(data) {
         vm.customers = data;
-        console.log(vm.customers);        
+        // console.log(vm.customers);        
       });
     }
 

@@ -14,7 +14,7 @@
 
     <!-- View order button-->
     <ion-nav-buttons side="right">
-      <button class="button button-icon button-clear ion-person-add" ng-click="customerModal.show()"></button>
+      <button class="button button-icon button-clear ion-person-add" ng-click="customerModal.show();getCustomerList('zip');vm.areaFlag = 'zip'"></button>
       <button class="button button-icon button-clear ion-android-done-all ng-hide" ng-hide="vm.isInventory" ng-click="checkOut()" ng-disabled="vm.order.items.length == 0"></button>
       <button class="button button-icon button-clear ion-android-archive" ng-if="vm.isInventory == true" ng-click="saveInventory()"></button>
     </ion-nav-buttons>

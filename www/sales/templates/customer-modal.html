@@ -4,30 +4,42 @@
       <button class="button" ng-click="customerModal.hide()">Close</button>
     </div>
     <h1 class="title">Select Customer</h1>
-    <!--<div class="buttons">
-      <button class="button" ng-click="saveItem()">Save</button>
-    </div>-->
+    <div class="buttons">
+      <button class="button" ng-click="newInventory();customerModal.hide()">New Inventory</button>
+    </div>
   </ion-header-bar>
   <ion-content>
     <!--search form-->
-    <div class="item-input-inset">
+    <!--<div class="item-input-inset" ng-show="vm.customerAddr.address">
       <label class="item-input-wrapper">
         <i class="icon ion-ios-search placeholder-icon"></i>
         <input type="search" placeholder="Search" ng-model="search">
       </label>
-    </div>
+    </div>-->
 
     <div class="padding">
       <ion-list>
-        <ion-item ng-click="newInventory();customerModal.hide()">
-          <span class="bold">INVENTORY</span>
+        <!--<ion-item ng-click="newInventory();customerModal.hide()">
+          <span class="bold">NEW INVENTORY</span>
+        </ion-item>-->
+        <ion-item ng-if="vm.areaFlag == 'zip'" ng-click="getCustomerList('city',zip);vm.areaFlag = 'city'" ng-repeat="zip in vm.CUSTOMERS">
+          {{zip.key}}
         </ion-item>
-        <ion-item ng-repeat="customer in vm.customers | filter : search" ng-click="vm.customer = customer;customerModal.hide();vm.isInventory=false">
+        <ion-item ng-if="vm.areaFlag == 'city'" ng-click="getCustomerList('address',vm.zip,city);vm.areaFlag = 'address'" ng-repeat="city in vm.CUSTOMERS">
+          {{city}}
+        </ion-item>
+        <ion-item ng-if="vm.areaFlag == 'address'" ng-click="getCustomerList('customer',vm.zip,vm.city,address);vm.areaFlag = 'customer'" ng-repeat="address in vm.CUSTOMERS">
+          {{address}}
+        </ion-item>
+        <ion-item ng-if="vm.areaFlag == 'customer'" ng-repeat="customer in vm.CUSTOMERS" ng-click="vm.customer = customer;vm.isInventory = false;customerModal.hide()">
+          {{customer.name}}
+        </ion-item>
+        <!--<ion-item ng-repeat="customer in vm.customers | filter : search" ng-click="vm.customer = customer;customerModal.hide();vm.isInventory=false">
           <div>
             <h1 class="gray">{{customer.company}}</h1>
             <span>{{customer.contact_name}}</span>
           </div>
-        </ion-item>
+        </ion-item>-->
       </ion-list>
     </div>
 

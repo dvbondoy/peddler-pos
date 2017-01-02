@@ -3,8 +3,8 @@
 
   angular
     .module('app.settings')
-    .controller('SettingsController', SettingsController)
-    .controller('InventoryController', InventoryController);
+    .controller('SettingsController', SettingsController);
+    // .controller('InventoryController', InventoryController);
 
   SettingsController.$inject = ['$scope','$q','$ionicModal','$ionicLoading'];
   function SettingsController($scope,$q,$ionicModal,$ionicLoading) {
@@ -38,6 +38,7 @@
 
     getUserID();
     getServerList();
+    getDailyQuota();
 
     // PREP MODALS =========================================================
     $ionicModal.fromTemplateUrl('settings/templates/server-list-modal.html',{
@@ -73,6 +74,36 @@
         // console.log(data);
         vm.USER_ID = data;
       });
+    }
+
+    $scope.setDailyQuota = function() {
+      var quota = prompt('Enter daily quota');
+      var daily_quota = {
+        _id:'_local/daily_quota',
+        quota:quota
+      };
+
+      $q.when(_db.get('_local/daily_quota').then(function(res){
+        // console.log(res);
+        res.quota = quota;
+        _db.put(res);
+        getDailyQuota();
+      }).catch(function(error){
+        // console.log(error);
+        if(error.message == 'missing') {
+          _db.put(daily_quota);
+          getDailyQuota();
+        }
+      }));
+    }
+
+    function getDailyQuota() {
+      $q.when(_db.get('_local/daily_quota').then(function(res){
+        vm.DAILY_QUOTA = res;
+        return res;
+      }).catch(function(err){
+        console.log(err);
+      }));
     }
 
     // SERVER SETUP =======================================================
@@ -268,70 +299,33 @@
               }
             }.toString(),
             reduce:'_count'
-          }
-        },
-        'city':{
-          map:function(doc){
-            if(doc.bill_to_city){
-              emit([doc.bill_to_zip,doc.bill_to_city],null);
-            }
-          }.toString()
-        },
-        'address':{
-          map:function(doc){
-            if(doc.bill_to_address_two){
-              emit([doc.bill_to_zip,doc.bill_to_city,doc.bill_to_address_two],null);
-            }
-          }.toString()
-        }
-      };
-
-      $q.when(_db.put(ddoc).catch(function(error){
-        console.log(error);
-      }).then(function(result){
-        console.log(result);
-      }));
-    }
-
-
-  }
-
-  InventoryController.$inject = ['$scope','$q','SharedProperties','$ionicModal']
-  function InventoryController($scope,$q,SharedProperties,$ionicModal) {
-    var vm = this;
-
-    vm.activeInventory;
-
-    $scope.inDetailsModal;
-
-    //PREP MODALS
-    $ionicModal.fromTemplateUrl('settings/templates/inventory-details-modal.html',{
-      scope:$scope,
-      animation:'slide-in-up'
-    }).then(function(modal){
-      $scope.inDetailsModal = modal;
-    });
-
-    // $q.when(_db.get('_design/inventory_ddoc').catch(function(error){
-    //   if(error.message == 'missing') {
-    //     createInventoryDdoc();
-    //   }
-    // }));
-
-    function createInventoryDdoc() {
-      var ddoc = {
-        _id:'_design/inventory_ddoc',
-        views:{
-          'active':{
+          },
+          'city':{
             map:function(doc){
-              if(doc.doc_type == 'inventory'){
-                emit(doc.status,null);
-              }
+              // if(doc.bill_to_city){
+              emit(doc.bill_to_zip,null);
+              // }
+            }.toString()
+          },
+          'address':{
+            map:function(doc){
+              // if(doc.bill_to_address_two){
+              emit([doc.bill_to_zip,doc.bill_to_city],null);
+              // }
+            }.toString()
+          },
+          'customer':{
+            map:function(doc){
+              emit([doc.bill_to_zip,doc.bill_to_city,doc.bill_to_address_two],null);
             }.toString()
           }
         }
       };
 
+      $q.when(_db.get('_design/customers_ddoc').then(function(result){
+        console.log(result);
+      }));
+
       $q.when(_db.put(ddoc).catch(function(error){
         console.log(error);
       }).then(function(result){
@@ -339,20 +333,39 @@
       }));
     }
 
-    $q.when(_db.query('inventory_ddoc/active', {
-      include_docs:true,
-      key:'active'
-    },function(error, result) {
-      if(result.rows.length == 1) {
-        vm.activeInventory = result.rows[0].doc;
-        console.log(vm.activeInventory);
-      } else {
-        vm.activeInventory = false;
-      }
-    }).catch(function(error){
-      console.log(error);
-    }));
 
   }
+
+  // InventoryController.$inject = ['$scope','$q','SharedProperties','$ionicModal']
+  // function InventoryController($scope,$q,SharedProperties,$ionicModal) {
+  //   var vm = this;
+
+  //   vm.activeInventory;
+
+  //   $scope.inDetailsModal;
+
+  //   //PREP MODALS
+  //   $ionicModal.fromTemplateUrl('settings/templates/inventory-details-modal.html',{
+  //     scope:$scope,
+  //     animation:'slide-in-up'
+  //   }).then(function(modal){
+  //     $scope.inDetailsModal = modal;
+  //   });
+
+  //   $q.when(_db.query('inventory_ddoc/active', {
+  //     include_docs:true,
+  //     key:'active'
+  //   },function(error, result) {
+  //     if(result.rows.length == 1) {
+  //       vm.activeInventory = result.rows[0].doc;
+  //       console.log(vm.activeInventory);
+  //     } else {
+  //       vm.activeInventory = false;
+  //     }
+  //   }).catch(function(error){
+  //     console.log(error);
+  //   }));
+
+  // }
 
 })();

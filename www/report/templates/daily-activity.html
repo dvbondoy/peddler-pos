@@ -1,0 +1,34 @@
+<ion-view ng-controller="DailyActivityController as vm">
+  <ion-content>
+    <div class="padding">
+      <h4 class="gray">Today's Calls</h4>
+      <div class="padding-left">
+        <span class="bold">
+          Total Calls: {{vm.todayCalls.calls}} 
+        </span>
+      </div>
+      <div class="padding-left">
+        <span class="bold">
+          Daily Quota: {{vm.todayCalls.quota | number:0}} %
+        </span>
+      </div>
+      <div class="padding-left">
+        <span class="bold">
+          Total Amount: {{vm.todayCalls.total | currency:'Php '}}
+        </span>
+      </div>
+      <h4 class="gray">Yesterday's Calls</h4>
+      <div class="padding-left">
+        <span class="bold">Total Calls: {{vm.yesterdayCalls.calls}}</span>
+      </div>
+      <div class="padding-left">
+        <span class="bold">Daily Quota: {{vm.yesterdayCalls.quota | number:0}}</span>
+      </div>
+      <div class="padding-left">
+        <span class="bold">
+          Total Amount: {{vm.yesterdayCalls.total | currency : 'Php '}}
+        </span>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

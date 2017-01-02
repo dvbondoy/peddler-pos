@@ -1,0 +1,22 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="buttons">
+      <button class="button" ng-click="inDetailsModal.hide()">Close</button>
+    </div>
+    <h1 class="title">Inventory Details</h1>
+    <!--<div class="buttons"></div>-->
+  </ion-header-bar>
+  <ion-content>
+    <div class="padding">
+      <ion-list>
+        <ion-item ng-repeat="item in vm.activeInventory.items">
+          <div>
+            <h3 class="gray">{{item.DESCRIPTION}}</h3>
+            <span>Quantity: {{item.quantity}} | Sold: {{item.sold}} | Remaining: {{item.quantity - item.sold}}</span>
+          </div>
+        </ion-item>
+      </ion-list>
+
+    </div>
+  </ion-content>
+</ion-modal-view>

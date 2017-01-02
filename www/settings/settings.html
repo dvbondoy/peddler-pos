@@ -12,7 +12,15 @@
       <ion-list>
         <ion-item class="item-icon-right no-border">
           <div ng-click="setUserID()">
-            <span class="bold">User ID: {{vm.USER_ID.userId}}</span>
+            <span class="bold">User ID</span>
+            <span class="pull-right">{{vm.USER_ID.userId}}</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div ng-click="setDailyQuota()">
+            <span class="bold">Daily Quota</span>
+            <span class="pull-right">{{vm.DAILY_QUOTA.quota}} calls</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
