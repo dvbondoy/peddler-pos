@@ -3,9 +3,14 @@
     <div class="buttons">
       <button class="button" ng-click="customerModal.hide()">Close</button>
     </div>
-    <h1 class="title">Select Customer</h1>
+    <h1 class="title">Sales Options</h1>
     <div class="buttons">
-      <button class="button" ng-click="newInventory();customerModal.hide()">New Inventory</button>
+      <button class="button button-icon button-clear" ng-click="openDatePicker()">
+        <i class="icon ion-ios-calendar"></i>
+      </button>
+      <button class="button button-icon button-clear" ng-click="newInventory();customerModal.hide()">
+        <i class="icon ion-ios-download"></i>
+      </button>
     </div>
   </ion-header-bar>
   <ion-content>
@@ -19,19 +24,26 @@
 
     <div class="padding">
       <ion-list>
+        <!--<button class="button button-block" ng-click="openDatePicker()">Ship Date</button>-->
         <!--<ion-item ng-click="newInventory();customerModal.hide()">
           <span class="bold">NEW INVENTORY</span>
         </ion-item>-->
-        <ion-item ng-if="vm.areaFlag == 'zip'" ng-click="getCustomerList('city',zip);vm.areaFlag = 'city'" ng-repeat="zip in vm.CUSTOMERS">
+        <!--<ion-item>-->
+          <h4 class="gray">
+            Ship Date:
+            <span class="pull-right">{{vm.ship_by}}</span>
+          </h4>
+        <!--</ion-item>-->
+        <ion-item ng-if="vm.areaFlag == 'zip'" ng-click="getCustomerList('city',zip);vm.areaFlag = 'city'" ng-repeat="zip in vm._customers">
           {{zip.key}}
         </ion-item>
-        <ion-item ng-if="vm.areaFlag == 'city'" ng-click="getCustomerList('address',vm.zip,city);vm.areaFlag = 'address'" ng-repeat="city in vm.CUSTOMERS">
+        <ion-item ng-if="vm.areaFlag == 'city'" ng-click="getCustomerList('address',vm.zip,city);vm.areaFlag = 'address'" ng-repeat="city in vm._customers">
           {{city}}
         </ion-item>
-        <ion-item ng-if="vm.areaFlag == 'address'" ng-click="getCustomerList('customer',vm.zip,vm.city,address);vm.areaFlag = 'customer'" ng-repeat="address in vm.CUSTOMERS">
+        <ion-item ng-if="vm.areaFlag == 'address'" ng-click="getCustomerList('customer',vm.zip,vm.city,address);vm.areaFlag = 'customer'" ng-repeat="address in vm._customers">
           {{address}}
         </ion-item>
-        <ion-item ng-if="vm.areaFlag == 'customer'" ng-repeat="customer in vm.CUSTOMERS" ng-click="vm.customer = customer;vm.isInventory = false;customerModal.hide()">
+        <ion-item ng-if="vm.areaFlag == 'customer'" ng-repeat="customer in vm._customers" ng-click="assignCustomer(customer)">
           {{customer.name}}
         </ion-item>
         <!--<ion-item ng-repeat="customer in vm.customers | filter : search" ng-click="vm.customer = customer;customerModal.hide();vm.isInventory=false">

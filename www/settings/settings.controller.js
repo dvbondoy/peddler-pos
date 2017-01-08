@@ -6,8 +6,12 @@
     .controller('SettingsController', SettingsController);
     // .controller('InventoryController', InventoryController);
 
-  SettingsController.$inject = ['$scope','$q','$ionicModal','$ionicLoading'];
-  function SettingsController($scope,$q,$ionicModal,$ionicLoading) {
+  SettingsController.$inject = ['$scope','$q','$ionicModal','$ionicLoading','DataServices'];
+  function SettingsController($scope,$q,$ionicModal,$ionicLoading,DataServices) {
+
+    // var test = DataServices.Category().get();
+    // console.log(test);
+
     var vm = this;
     
     vm.USER_ID = {};
@@ -24,6 +28,7 @@
         firstRun = true;
       }
     }));
+    createDdocs();
 
     function createDdocs() {
       createItemsDdoc();
@@ -153,7 +158,8 @@
       
       $q.when(_db.replicate.from(remote)
       .on('error',function(error){
-        alert(error);
+        alert(JSON.stringify(error));
+        $ionicLoading.hide();
       })
       .on('complete',function(result){
 
@@ -165,6 +171,9 @@
         // });
         $ionicLoading.hide();
         alert('Items update complete.');
+      })
+      .on('denied',function(err){
+        alert(JSON.stringify(err));
       }));
     }
 

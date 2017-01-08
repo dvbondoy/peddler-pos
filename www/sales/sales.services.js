@@ -3,33 +3,88 @@
 
   angular
     .module('app.sales')
-    .factory('Sales', Sales);
+    .factory('SalesService', SalesService);
 
-  Sales.$inject = ['$q'];
-  function Sales($q) {
+  SalesService.$inject = ['$q'];
+  function SalesService($q) {
+
     var service = {
-      add:add,
-      get:get
+      getPCategories:getPCategories,
+      getCategories:getCategories,
+      getItems:getItems,
+      getActiveInventory:getActiveInventory,
+      closeActiveInventory:closeActiveInventory
+      // getCustomer:getCustomer,
+      // saveInventory:saveInventory,
+      // saveSale:saveSale
     };
     
     return service;
 
     ////////////////
-    function add(order) {
-      return $q.when(_db.put(order));
+    function getPCategories() {
+      return $q.when(_db.query('items_ddoc/pcategories',{group:true}).then(function(result) {
+        var p_categories = [];
+        result.rows.forEach(function(row){
+          p_categories.push(row.key[0]);
+        });
+
+        return p_categories;
+      }));
     }
 
-    function get() {
-      return $q.when(_db.allDocs({
+    function getCategories(pcategory) {
+      return $q.when(_db.query('items_ddoc/categories',{
         include_docs:true,
-        startkey:'sales_',
-        endkey:'sales_\uffff'
-      })).then(function(docs) {
-        return docs.rows.map(function(row){
-          return row.doc;
+        startkey:pcategory,
+        endkey:pcategory+'\uffff'
+      }).then(function(result) {
+        var categories = [];
+
+        result.rows.forEach(function(row) {
+          categories.push(row.doc.CATEGORY);
         });
-      });
+
+        return categories;
+      }));
     }
-    
+
+    function getItems(pcategory,category) {
+      return $q.when(_db.query('items_ddoc/itemsByCategories',{
+        include_docs:true,
+        key:[pcategory,category]
+      }).then(function(docs) {
+        var items = [];
+        docs.rows.forEach(function(row) {
+          items.push(row.doc);
+        });
+        return items;
+      }));
+
+    }
+
+    function getActiveInventory() {
+      return $q.when(_db.query('inventory_ddoc/active', {
+        include_docs:true,
+        key: 'active'
+      }).then(function(docs) {
+        if(docs.rows.length == 0) {
+          return false;
+        } else {
+          return docs.rows[0].doc;
+        }
+      }));
+    }
+
+    function closeActiveInventory(inventory) {
+      inventory.status = 'closed';
+      return $q.when(_db.put(inventory)
+        .then(function(result) {
+          return result;
+      }).catch(function(error) {
+        return error;
+      }));
+    }
+   
   }
 })();

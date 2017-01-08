@@ -13,8 +13,8 @@
     var vm = this;
   }
 
-  SalesReportController.$inject = ['$scope','$q','$ionicModal'];
-  function SalesReportController($scope,$q,$ionicModal) {
+  SalesReportController.$inject = ['$scope','$q','$ionicModal','SalesService'];
+  function SalesReportController($scope,$q,$ionicModal,SalesService) {
     var vm = this;
 
     // PREP MODALS
@@ -25,6 +25,14 @@
       $scope.salesReportModal = modal;
     });
 
+
+    // SalesService.getActiveInventory().then(function(data){
+    //   if(!data) {
+    //     return false;
+    //   } else {
+
+    //   }
+    // })
     
     $q.when(_db.query('inventory_ddoc/active', {
       include_docs:true,
@@ -100,8 +108,8 @@
     }));
   }
 
-  InventoryController.$inject = ['$scope','$q','$ionicModal'];
-  function InventoryController($scope,$q,$ionicModal) {
+  InventoryController.$inject = ['$scope','$q','$ionicModal','SalesService'];
+  function InventoryController($scope,$q,$ionicModal,SalesService) {
     var vm = this;
 
     vm.activeInventory;
@@ -116,19 +124,34 @@
       $scope.inDetailsModal = modal;
     });
 
-    $q.when(_db.query('inventory_ddoc/active', {
-      include_docs:true,
-      key:'active'
-    },function(error, result) {
-      if(result.rows.length == 1) {
-        vm.activeInventory = result.rows[0].doc;
-        console.log(vm.activeInventory);
-      } else {
+    SalesService.getActiveInventory().then(function(data) {
+      if(!data) {
         vm.activeInventory = false;
+      } else {
+        vm.activeInventory = data;
       }
-    }).catch(function(error){
-      console.log(error);
-    }));
+    });
+    // $q.when(_db.query('inventory_ddoc/active', {
+    //   include_docs:true,
+    //   key:'active'
+    // },function(error, result) {
+    //   if(result.rows.length == 1) {
+    //     vm.activeInventory = result.rows[0].doc;
+    //     console.log(vm.activeInventory);
+    //   } else {
+    //     vm.activeInventory = false;
+    //   }
+    // }).catch(function(error){
+    //   console.log(error);
+    // }));
+
+    $scope.closeActiveInventory = function() {
+      SalesService.closeActiveInventory(vm.activeInventory).then(function(result) {
+        console.log(result);
+      }).catch(function(error) {
+        console.log(error);
+      });
+    }
 
 
   }//END OF INVENTORY CONTROLLER;

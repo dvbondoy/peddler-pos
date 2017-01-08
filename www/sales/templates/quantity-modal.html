@@ -1,0 +1,39 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="buttons">
+      <button class="button button-icon" ng-click="quantityModal.hide()">
+        <i class="icon ion-close"></i>
+      </button>
+    </div>
+    <h1 class="title">Set Quantity</h1>
+    <div class="buttons">
+      <button class="button button-icon" ng-click="addItemOrder(vm.item);quantityModal.hide()">
+        <i class="icon ion-checkmark"></i>
+      </button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="padding">
+      <h2 class="gray">{{vm.item.DESCRIPTION}}</h2>
+      <div class="row item-qty">
+        <div class="col-20">
+          <button class="button button-light" ng-click="vm.quantity = vm.quantity - 1">
+            <i class="ion-minus"></i>
+          </button>
+        </div>
+        <div class="col-60 text-center text-2x padding" ng-click="inputQty()">
+          <!--{{ currentItem.quantity }}-->
+          {{vm.quantity}}
+        </div>
+        <div class="col-20">
+          <button class="button button-light" ng-click="vm.quantity = vm.quantity + 1">
+            <i class="ion-plus"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <ion-list>
+      <ion-radio ng-model="vm.umData.value" ng-repeat="um in vm.ums" ng-value="um.value">{{um.text}}</ion-radio>
+    </ion-list>
+  </ion-content>
+</ion-modal-view>

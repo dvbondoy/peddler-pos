@@ -1,9 +1,11 @@
 <ion-modal-view>
   <ion-header-bar>
     <div class="buttons">
-      <button class="button" ng-click="itemsModal.hide()">Close</button>
+      <button class="button button-icon" ng-click="itemsModal.hide()">
+        <i class="icon ion-close"></i>
+      </button>
     </div>
-    <h1 class="title">ITems</h1>
+    <h1 class="title">{{vm._items[0].PCATEGORY }} > {{ vm._items[0].CATEGORY}}</h1>
     <!--<div class="buttons">
       <button class="button" ng-click="saveItem()">Save</button>
     </div>-->
@@ -12,14 +14,13 @@
     <div class="">
       <!--<h5 class="margin-top-30">NOTE AND QUANTITY</h5>-->
       <!--<input class="border-bottom-only" type="text" placeholder="Add a note"/>-->
-      <div class="row item-qty">
+      <!--<div class="row item-qty">
         <div class="col-20">
           <button class="button button-light" ng-click="vm.quantity = vm.quantity - 1">
             <i class="ion-minus"></i>
           </button>
         </div>
-        <div class="col-60 text-center text-2x padding">
-          <!--{{ currentItem.quantity }}-->
+        <div class="col-60 text-center text-2x padding" ng-click="moreQuantity.show()">
           {{vm.quantity}}
         </div>
         <div class="col-20">
@@ -27,9 +28,10 @@
             <i class="ion-plus"></i>
           </button>
         </div>
-      </div>
+      </div>-->
       <ion-list>
-        <ion-item ng-repeat="item in vm.ITEMS" ng-click="addItemOrder(item)">
+        <!--<ion-item ng-repeat="item in vm._items" ng-click="addItemOrder(item)">-->
+        <ion-item ng-repeat="item in vm._items" ng-click="setQty(item)">
           <div>
             {{item.DESCRIPTION}}
             <span class="pull-right" ng-show="inOrder(item) == true"><i class="icon ion-checkmark-circled"></i></span>

@@ -5,6 +5,10 @@
     "ionic": "driftyco/ionic-bower#1.2.4"
   },
   "dependencies": {
-    "angular-moment": "^1.0.1"
+    "angular-moment": "^1.0.1",
+    "ionic-datepicker": "^1.2.1"
+  },
+  "resolutions": {
+    "angular-animate": "1.5.3"
   }
 }
