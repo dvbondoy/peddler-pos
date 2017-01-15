@@ -1,16 +1,84 @@
 <ion-modal-view>
   <ion-header-bar>
     <div class="buttons">
-      <button class="button" ng-click="optionModal.hide()">Close</button>
-    </div>
-    <h1 class="title">Sales Options</h1>
-    <!--<div class="buttons">
-      <button class="button" ng-click="addItemOrder(vm.item);quantityModal.hide()">
-        <i class="icon ion-checkmark"></i>
+      <!-- <button class="button" ng-click="optionModal.hide()">Close</button> -->
+      <!-- <button class="button button-icon ion-ios-download"></button> -->
+      <button class="button button-icon" ng-click="optionModal.hide()">
+        <i class="icon ion-close"></i>
       </button>
-    </div>-->
+    </div>
+    <h1 class="title">Checkout</h1>
+    <div class="buttons" ng-click="saveInventory()">
+      <button class="button button-icon ion-ios-download"></button>
+    </div>
   </ion-header-bar>
   <ion-content>
+    <div class="padding">
+      <ion-list>
+        <!--// Shipping Date-->
+        <ion-item class="item-icon-right no-border">
+          <div ng-click="openDatePicker()">
+            <span class="bold">Ship Date</span>
+            <span class="pull-right">{{vm.ship_by}}</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
 
+        <!--Customer-->
+        <ion-item class="item-icon-right no-border">
+          <!-- <div ng-click="customerModal.show();getCustomerList('zip');vm.areaFlag = 'zip'"> -->
+          <div>
+            <span class="bold">Customer</span>
+            <span class="pull-right">{{vm.customer.name}}</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+
+        <ion-item class="no-border">
+          <div>
+            <span class="bold">Sub-total</span>
+            <span class="pull-right">{{vm.order.subtotal | currency:"Php "}}</span>
+          </div>
+        </ion-item>
+
+        <ion-item class="no-border" ng-if="vm.order.discount !== null">
+          <div>
+            <span class="bold">Discount</span>
+            <span class="pull-right">{{vm.order.discount.amount | currency:"Php "}}</span>
+          </div>
+        </ion-item>
+
+        <ion-item class="no-border">
+          <div>
+            <span class="bold">Charge</span>
+            <span class="pull-right">{{vm.order.total | currency:"Php "}}</span>
+          </div>
+        </ion-item>
+
+        <!-- <ion-item href="#"> -->
+        <!-- </ion-item> -->
+
+        <!--Printer Status-->
+        <!-- <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Printer Status</span>
+            <span class="pull-right">{{vm.printer_status}}</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item> -->
+
+      </ion-list>
+
+      <ion-checkbox class="no-border" ng-model="vm.checkout_options.printer" ng-change="checkPrinter()">
+        Print
+        <span class="pull-right balanced" ng-if="vm.printer_status">connected</span>
+        <span class="pull-right assertive" ng-if="!vm.printer_status">disconnected</span>
+      </ion-checkbox>
+
+      <ion-checkbox class="no-border" ng-model="vm.checkout_options.export">Export to CSV</ion-checkbox>  
+      <!-- <button class="button button-block button-dark">Create Inventory</button> -->
+      <button class="button button-block button-positive" ng-click="checkOut()">Proceed to Checkout</button>
+      <button class="button button-block button-assertive" ng-click="cancelSale()">Cancel Sale</button>
+    </div>
   </ion-content>
 </ion-modal-view>

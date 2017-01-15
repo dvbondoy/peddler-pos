@@ -10,6 +10,7 @@
     var service = {
       get:get,
       put:put,
+      query:query,
       getPCategories:getPCategories,
       getCategories:getCategories,
       getItems:getItems,
@@ -34,6 +35,12 @@
         return result;
       }).catch(function(error) {
         return error;
+      }));
+    }
+
+    function query(id,option,callback) {
+      return $q.when(_db.query(id,option).then(function(result){
+        return result;
       }));
     }
 

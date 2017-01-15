@@ -13,8 +13,8 @@
     var vm = this;
   }
 
-  SalesReportController.$inject = ['$scope','$q','$ionicModal','SalesService'];
-  function SalesReportController($scope,$q,$ionicModal,SalesService) {
+  SalesReportController.$inject = ['$scope','$q','$ionicModal','SalesService','DataServices'];
+  function SalesReportController($scope,$q,$ionicModal,SalesService,DataServices) {
     var vm = this;
 
     // PREP MODALS
@@ -108,8 +108,8 @@
     }));
   }
 
-  InventoryController.$inject = ['$scope','$q','$ionicModal','SalesService'];
-  function InventoryController($scope,$q,$ionicModal,SalesService) {
+  InventoryController.$inject = ['$scope','$q','$ionicModal','SalesService','DataServices','$state'];
+  function InventoryController($scope,$q,$ionicModal,SalesService,DataServices,$state) {
     var vm = this;
 
     vm.activeInventory;
@@ -124,32 +124,22 @@
       $scope.inDetailsModal = modal;
     });
 
-    SalesService.getActiveInventory().then(function(data) {
-      if(!data) {
-        vm.activeInventory = false;
-      } else {
-        vm.activeInventory = data;
-      }
-    });
-    // $q.when(_db.query('inventory_ddoc/active', {
-    //   include_docs:true,
-    //   key:'active'
-    // },function(error, result) {
-    //   if(result.rows.length == 1) {
-    //     vm.activeInventory = result.rows[0].doc;
-    //     console.log(vm.activeInventory);
-    //   } else {
-    //     vm.activeInventory = false;
-    //   }
-    // }).catch(function(error){
-    //   console.log(error);
-    // }));
+    DataServices.query('inventory_ddoc/active',{include_docs:true,key:'active'})
+      .then(function(docs) {
+        if(docs.rows.length == 0) {
+          vm.activeInventory = false;
+        } else {
+          vm.activeInventory = docs.rows[0].doc;
+        }
+      });
 
     $scope.closeActiveInventory = function() {
-      SalesService.closeActiveInventory(vm.activeInventory).then(function(result) {
-        console.log(result);
-      }).catch(function(error) {
-        console.log(error);
+      vm.activeInventory.status = 'closed';
+      DataServices.put(vm.activeInventory).then(function(result) {
+        if(result.ok) {
+          alert('Inventory closed.');
+          $state.go('app.report');
+        }
       });
     }
 

@@ -1,0 +1,16 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="buttons">
+      <button class="button button-icon ion-close" ng-click="printerModal.hide()"></button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="padding">
+      <ion-list>
+        <ion-item ng-repeat="printer in vm.devices" ng-click="savePrinter(printer);printerModal.hide()">
+          {{printer}}
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-modal-view>

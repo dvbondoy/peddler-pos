@@ -1,7 +1,7 @@
 <ion-view ng-controller="DailyActivityController as vm">
   <ion-content>
     <div class="padding">
-      <h4 class="gray">Today's Calls</h4>
+      <h4 class="gray">Today</h4>
       <div class="padding-left">
         <span class="bold">
           Total Calls: {{vm.todayCalls.calls}} 
@@ -17,7 +17,7 @@
           Total Amount: {{vm.todayCalls.total | currency:'Php '}}
         </span>
       </div>
-      <h4 class="gray">Yesterday's Calls</h4>
+      <h4 class="gray">Yesterday</h4>
       <div class="padding-left">
         <span class="bold">Total Calls: {{vm.yesterdayCalls.calls}}</span>
       </div>

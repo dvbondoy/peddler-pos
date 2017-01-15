@@ -1,8 +1,7 @@
 <ion-modal-view>
   <ion-header-bar>
     <div class="buttons">
-      <button class="button button-icon" ng-click="itemsModal.hide()">
-        <i class="icon ion-close"></i>
+      <button class="button button-icon ion-close" ng-click="itemsModal.hide()">
       </button>
     </div>
     <h1 class="title">{{vm._items[0].PCATEGORY }} > {{ vm._items[0].CATEGORY}}</h1>
@@ -34,7 +33,7 @@
         <ion-item ng-repeat="item in vm._items" ng-click="setQty(item)">
           <div>
             {{item.DESCRIPTION}}
-            <span class="pull-right" ng-show="inOrder(item) == true"><i class="icon ion-checkmark-circled"></i></span>
+            <span class="pull-right" ng-show="item.hasItem"><i class="icon ion-checkmark-circled"></i></span>
           </div>
           <div class="padding" ng-show="vm.order.length === 0">
             <h2>Nothing yet!</h2>

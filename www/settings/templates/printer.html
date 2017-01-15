@@ -1,0 +1,27 @@
+<ion-view view-title="Printer" ng-controller="PrinterController as vm">
+  <ion-nav-bar class="bar-stable bar-no-border">
+    <ion-nav-back-button>
+      Back
+    </ion-nav-back-button>
+
+    <!--<ion-nav-buttons side="right">
+      <button class="button button-icon ion-qr-scanner" ng-click="scanPrinter()"></button>
+    </ion-nav-buttons>-->
+  </ion-nav-bar>
+  <ion-content>
+    <div class="padding">
+      <ion-list>
+        <ion-item class="item-icon-right no-border">
+          <div ng-click="scanPrinter()">
+            <span class="bold">Printer</span>
+            <span class="pull-right">{{vm.printer}}</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+      </ion-list>
+      <button class="button button-block button-dark" ng-click="testConnection()">Test Connection</button>
+      <button class="button button-block button-dark" ng-click="testPrint()">Test Print</button>
+      <!-- <button class="button button-block" ng-click="posCommand()">Test Command</button> -->
+    </div>
+  </ion-content>
+</ion-view>

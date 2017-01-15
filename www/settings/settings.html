@@ -30,20 +30,20 @@
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
-        <ion-item class="item-icon-right no-border">
+        <!-- <ion-item class="item-icon-right no-border">
           <div ui-sref="app.database">
             <span class="bold">Database</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
-        </ion-item>
+        </ion-item> -->
       </ion-list>
       <h4 class="gray padding-left">
         Sync Data
       </h4>
       <ion-list>
         <ion-item class="item-icon-right no-border">
-          <div ui-sref="app.inventory">
-            <span class="bold">Inventory</span>
+          <div>
+            <span class="bold">Upload Inventory</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
@@ -66,8 +66,14 @@
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
         <ion-item class="item-icon-right no-border">
+          <div ng-click="updateDiscounts()">
+            <span class="bold">Update Discounts</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
           <div>
-            <span class="bold">Update All</span>
+            <span class="bold">Sync All</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
@@ -122,12 +128,30 @@
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>-->
-        <ion-item class="item-icon-right no-border">
+        <!-- <ion-item class="item-icon-right no-border">
           <div>
             <span class="bold">Open ticket</span>
             <span class="pull-right">Off</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
+        </ion-item> -->
+        <ion-item class="item-toggle no-border">
+          <span class="bold">Print receipt</span>
+          <label class="toggle">
+            <input type="checkbox" ng-model="vm.checkout_options.printer" ng-change="printerOptions()">
+            <div class="track">
+              <div class="handle"></div>
+            </div>
+          </label>
+        </ion-item>
+        <ion-item class="item-toggle no-border">
+          <span class="bold">Export to CSV</span>
+          <label class="toggle">
+            <input type="checkbox" ng-model="vm.checkout_options.export" ng-change="exportOptions()">
+            <div class="track">
+              <div class="handle"></div>
+            </div>
+          </label>
         </ion-item>
       </ion-list>
 
@@ -136,13 +160,14 @@
       <ion-list>
 
         <ion-item class="item-icon-right no-border">
-          <div>
+          <div ui-sref="app.printer">
             <span class="bold">Printers</span>
+            <span class="pull-right">{{vm.printer}}</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
 
-        <ion-item class="item-icon-right no-border">
+        <!-- <ion-item class="item-icon-right no-border">
           <div>
             <span class="bold">Cash Drawer</span>
           </div>
@@ -162,12 +187,12 @@
             <span class="pull-right">No name</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
-        </ion-item>
+        </ion-item> -->
       </ion-list>
 
       <div class="padding margin-top-30">
         <!--<h4 class="gray text-center">SUCCESSDT@HOTMAIL.COM</h4>-->
-        <button class="button button-block button-round calm" ui-sref="auth.welcome">Logout</button>
+        <!-- <button class="button button-block button-round calm" ui-sref="auth.welcome">Logout</button> -->
       </div>
     </div>
   </ion-content>

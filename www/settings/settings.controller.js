@@ -3,7 +3,8 @@
 
   angular
     .module('app.settings')
-    .controller('SettingsController', SettingsController);
+    .controller('SettingsController', SettingsController)
+    .controller('PrinterController',PrinterController);
     // .controller('InventoryController', InventoryController);
 
   SettingsController.$inject = ['$scope','$q','$ionicModal','$ionicLoading','DataServices'];
@@ -17,33 +18,118 @@
     vm.USER_ID = {};
     vm.SERVER_LIST = {};
     vm.GO_LOCK = false;   //general options lock flag
-    
-    var firstRun = false;
 
-
+    // var firstRun = false;
     //FIRST RUN
-    $q.when(_db.info().then(function(info){
-      if(info.doc_count == 0){
-        createDdocs();
-        firstRun = true;
-      }
-    }));
+    // $q.when(_db.info().then(function(info){
+    //   console.log(info);
+    //   if(info.doc_count == 0){
+    //     createDdocs();
+    //     firstRun = true;
+    //   }
+    // }));
+
     createDdocs();
 
     function createDdocs() {
-      createItemsDdoc();
-      createCustomersDdoc();
-      createInventoryDdoc();
-      createSalesDdoc();
+      DataServices.get('_design/items_ddoc').then(function(docs){
+        if(docs.message == 'missing'){
+          createItemsDdoc();
+        }
+      });
+
+      DataServices.get('_design/customers_ddoc').then(function(docs){
+        if(docs.message == 'missing'){
+          createCustomersDdoc();
+        }
+      });
+
+      DataServices.get('_design/inventory_ddoc').then(function(docs){
+        if(docs.message == 'missing'){
+          createInventoryDdoc();
+        }
+      });
+
+      DataServices.get('_design/sales_ddoc').then(function(docs){
+        if(docs.message == 'missing'){
+          createSalesDdoc();
+        }
+      });
     }
 
-    $scope.createDdocs = function() {
-      createDdocs();
+    // getUserID();
+    DataServices.get('_local/userId').then(function(docs){
+      if(docs.message == 'missing'){
+        // vm.USER_ID = false;
+        return 0;
+      }
+
+      vm.USER_ID = docs;
+    });
+
+    // getServerList();
+    DataServices.get('_local/server_list').then(function(docs){
+      if(docs.message == 'missing'){return 0;}
+      vm.SERVER_LIST = docs;
+    });
+
+    // getDailyQuota();
+    DataServices.get('_local/daily_quota').then(function(quota){
+      vm.DAILY_QUOTA = quota;
+    });
+    //get checkout options
+    DataServices.get('_local/checkout_options').then(function(options){
+      console.log(options);
+      if(options.message == 'missing') { return 0;}
+
+      vm.checkout_options = {
+        printer:options.printer,
+        export:options.export
+      };
+    });
+
+    //get printer
+    DataServices.get('_local/printer').then(function(printer){
+      if(printer.message == 'missing'){return 0;}
+
+      // console.log(JSON.stringify(printer));
+      vm.printer = printer.printer;
+    });
+
+    $scope.printerOptions = function() {
+      DataServices.get('_local/checkout_options').then(function(docs){
+        if(docs.message == 'missing') {
+          //create new
+          var printer = {
+            _id : '_local/checkout_options',
+            printer:vm.checkout_options.printer
+          };
+
+          DataServices.put(printer);
+        } else {
+          //update
+          docs.printer = vm.checkout_options.printer;
+          DataServices.put(docs);
+        }
+      });
     }
 
-    getUserID();
-    getServerList();
-    getDailyQuota();
+    $scope.exportOptions = function() {
+      DataServices.get('_local/checkout_options').then(function(docs){
+        if(docs.message == 'missing') {
+          var csv = {
+            _id:'_local/checkout_options',
+            csv:vm.checkout_options.export
+          };
+          DataServices.put(csv);
+        } else {
+          // update
+          docs.export = vm.checkout_options.export;
+          DataServices.put(docs);
+
+        }
+      });
+    }
 
     // PREP MODALS =========================================================
     $ionicModal.fromTemplateUrl('settings/templates/server-list-modal.html',{
@@ -56,22 +142,35 @@
     // USER SETUP =========================================================
     $scope.setUserID = function() {
       var id = prompt('Enter user ID:');
+
+      if(id == "" || id == null) {
+        return 0;
+      }
+
       vm.USER_ID._id = '_local/userId';
       vm.USER_ID.userId = id;
 
       // insert user 
-      $q.when(_db.put(vm.USER_ID));
+      // $q.when(_db.put(vm.USER_ID));
+      DataServices.put(vm.USER_ID);
 
       // create default servers/
-      var servers = {
-        _id:'_local/server_list',
-        customers:'http://admin:nimda@localhost:5984/customers_'+id,
-        items:'http://admin:nimda@localhost:5984/items',
-        sales:'http://admin:nimda@localhost:5984/sales_'+id,
-        inventory:'http://admin:nimda@localhost:5984/inventory_'+id
-      };
+      DataServices.get('_local/serve_list').then(function(docs) {
+        if (docs.message == 'missing') {
+          var servers = {
+            _id:'_local/server_list',
+            customers:'http://admin:nimda@localhost:5984/customers_'+id,
+            items:'http://admin:nimda@localhost:5984/items',
+            sales:'http://admin:nimda@localhost:5984/sales_'+id,
+            inventory:'http://admin:nimda@localhost:5984/inventory_'+id,
+            discounts:'http://admin:nimda@localhost:5984/discounts'
+          };
+          
+          DataServices.put(servers);
+        }
+      });
 
-      $q.when(_db.put(servers));
+      // $q.when(_db.put(servers));
    }
 
     function getUserID() {
@@ -83,33 +182,31 @@
 
     $scope.setDailyQuota = function() {
       var quota = prompt('Enter daily quota');
+
+      if(quota == "" || quota == null) {
+        return 0;
+      }
+
       var daily_quota = {
         _id:'_local/daily_quota',
         quota:quota
       };
 
-      $q.when(_db.get('_local/daily_quota').then(function(res){
-        // console.log(res);
-        res.quota = quota;
-        _db.put(res);
-        getDailyQuota();
-      }).catch(function(error){
-        // console.log(error);
-        if(error.message == 'missing') {
-          _db.put(daily_quota);
-          getDailyQuota();
+      DataServices.get('_local/daily_quota').then(function(docs) {
+        console.log(docs);
+        if(docs.message == 'missing') {
+          //create new
+          DataServices.put(daily_quota);
+        } else {
+          //update
+          docs.quota = quota;
+          DataServices.put(docs);
         }
-      }));
+
+        vm.DAILY_QUOTA = {quota:quota};
+      });
     }
 
-    function getDailyQuota() {
-      $q.when(_db.get('_local/daily_quota').then(function(res){
-        vm.DAILY_QUOTA = res;
-        return res;
-      }).catch(function(err){
-        console.log(err);
-      }));
-    }
 
     // SERVER SETUP =======================================================
     $scope.setServers = function() {
@@ -198,6 +295,37 @@
       }));
     }
 
+    $scope.updateDiscounts = function() {
+      var remote = new PouchDB(vm.SERVER_LIST.discounts);
+      $ionicLoading.show({});
+      $q.when(_db.replicate.from(remote)
+        .on('error',function(error){
+          alert(JSON.stringify(error));
+        })
+        .on('complete',function(result){
+          $ionicLoading.hide();
+          alert('Discounts update complete');
+        }));
+    }
+
+    $scope.uploadInventory = function() {
+      $ionicLoading.show({});
+      var remote = new PouchDB(vm.SERVER_LIST.inventory);
+
+      $q.when(_db.replicate.to(remote,{
+        filter:function(doc){
+          return doc.doc_type == 'inventory';
+        }
+      })
+      .on('error',function(error){
+        console.log(error);
+        $ionicLoading.hide();
+      })
+      .on('complete',function(result){
+        console.log(result);
+        $ionicLoading.hide();
+      }));
+    }
 
     // SALES UPLOAD ===================================================================
     $scope.uploadSales = function() {
@@ -261,7 +389,24 @@
       }));
     }
 
-   function createItemsDdoc() {
+    function createDiscountsDdoc() {
+      var ddoc = {
+        _id:'_design/discounts_ddoc',
+        views:{
+          'all':{
+            map:function(doc){
+              if(doc.doc_type == 'discounts'){
+                emit(doc._id,null);
+              }
+            }.toString()
+          }
+        }
+      };
+
+      $q.when(_db.put(ddoc));
+    }
+
+    function createItemsDdoc() {
         var ddoc = {
         _id:'_design/items_ddoc',
         views:{
@@ -342,39 +487,143 @@
       }));
     }
 
-
   }
 
-  // InventoryController.$inject = ['$scope','$q','SharedProperties','$ionicModal']
-  // function InventoryController($scope,$q,SharedProperties,$ionicModal) {
-  //   var vm = this;
+  PrinterController.$inject = ['$scope', 'DataServices', '$ionicModal', '$ionicLoading'];
+  function PrinterController($scope, DataServices, $ionicModal, $ionicLoading) {
+    var vm = this;
 
-  //   vm.activeInventory;
+    vm.printer = 'Click to set';
 
-  //   $scope.inDetailsModal;
+    $ionicModal.fromTemplateUrl('settings/templates/printer-modal.html',{
+      scope:$scope,
+      animation:'slide-in-up'
+    }).then(function(modal) {
+      $scope.printerModal = modal;
+    });
 
-  //   //PREP MODALS
-  //   $ionicModal.fromTemplateUrl('settings/templates/inventory-details-modal.html',{
-  //     scope:$scope,
-  //     animation:'slide-in-up'
-  //   }).then(function(modal){
-  //     $scope.inDetailsModal = modal;
-  //   });
+    DataServices.get('_local/printer').then(function(data){
+      if(data.error){
+        console.log(data);
+        vm.printer = 'Click to set';
+      } else {
+        vm.printer = data.printer;
+      }
+    });
+    // document.addEventListener('deviceready', function() {
+    //   // BTPrinter.list(function(data){
+    //   //   console.log(data);
+    //   //   vm.devices = data;
+    //   // },function(error){
+    //   //   console.log(error);
+    //   // });
+    //   scanPrinter();
+    // });
 
-  //   $q.when(_db.query('inventory_ddoc/active', {
-  //     include_docs:true,
-  //     key:'active'
-  //   },function(error, result) {
-  //     if(result.rows.length == 1) {
-  //       vm.activeInventory = result.rows[0].doc;
-  //       console.log(vm.activeInventory);
-  //     } else {
-  //       vm.activeInventory = false;
-  //     }
-  //   }).catch(function(error){
-  //     console.log(error);
-  //   }));
+    $scope.scanPrinter = scanPrinter;
 
-  // }
+    function connect(printer) {
+      BTPrinter.connect(function(succes){
+        vm.connected = true;
+        // vm.printer = printer;
+      },function(error){
+        alert(error);
+      },printer);
+    }
+
+    function disconnect() {
+      BTPrinter.disconnect(function(success) {
+        console.log(success);
+        vm.connected = false;
+      },function(error){
+        console.log(error);
+      });
+    }
+
+    $scope.testPrint = function() {
+      var obj = [
+        {name:"apple",price:"10.00"},
+        {name:"orange",price:"12.00"},
+        {name:"mango",price:"50.00"}
+      ];
+
+      BTPrinter.connect(function(success){
+        console.log(success);
+        obj.forEach(function(v,i){
+          BTPrinter.printText(function(success){
+            console.log(success);
+
+          },function(error){
+            console.log(error);
+          },v.name+"     "+v.price+"\n");
+        });
+
+        BTPrinter.disconnect();
+
+      },function(error){
+        console.log(error);
+      },vm.printer);
+    }
+
+    $scope.testConnection = function() {
+      BTPrinter.connect(function(success){
+        BTPrinter.disconnect();
+        alert('Connected!');
+      },function(error){
+        alert(error);
+      },vm.printer);
+    }
+
+    $scope.savePrinter = function(printer) {
+      DataServices.get('_local/printer').then(function(data){
+        if(data.error) {
+          DataServices.put({_id:'_local/printer',printer:printer}).then(function(data){
+            if(data.ok){
+              vm.printer = printer;
+            }
+          });
+        }else{
+          var p = data;
+          p.printer = printer;
+          DataServices.put(p).then(function(data){
+            if(data.ok){
+              vm.printer = printer;
+            }
+          });
+        }
+      });
+    }
+
+    function scanPrinter() {
+      $ionicLoading.show({template:'Scanning...'})
+      BTPrinter.list(function(data){
+        console.log(data);
+        vm.devices = data;
+        $ionicLoading.hide();
+        $scope.printerModal.show();
+      },function(error){
+        alert(error);
+      });
+    }
+
+    $scope.posCommand = function(command){
+      var pos_command = "1B 64 01";
+      BTPrinter.connect(function(data){
+        console.log(data);
+        // BTPrinter.printPOSCommand(function(data){
+        //   console.log(data);
+        // },function(error){
+        //   console.log(error);
+        // },pos_command);
+        BTPrinter.printPOSCommand(function(){},function(){},"1B 40");
+        BTPrinter.printPOSCommand(function(){},function(){},pos_command);
+
+        BTPrinter.disconnect();
+      },function(error){
+        console.log(data);
+      },vm.printer);
+      
+    }
+  }
 
 })();

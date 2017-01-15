@@ -24,7 +24,14 @@
           url: '/inventory',
           templateUrl: 'settings/templates/inventory.html'
         }
+      },
+      {
+        state: 'app.printer',
+        config: {
+          url: '/printer',
+          templateUrl: 'settings/templates/printer.html'
+        }
       }
-    ]
+    ];
   }
 })();

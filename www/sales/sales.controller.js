@@ -95,6 +95,7 @@
     });
 
     $ionicModal.fromTemplateUrl('sales/templates/option-modal.html',{
+      id:'option',
       scope:$scope,
       animation:'slide-in-up'
     }).then(function(modal) {
@@ -104,16 +105,43 @@
     // DISPLAY PRODUCTS =============================================
     //get parent categories
     DataServices.getPCategories().then(function(data) {
+      console.log(JSON.stringify(data));
       vm._categories = data;
     });
     // get active inventory
     DataServices.getActiveInventory().then(function(data) {
-        if(!data) {
-          return false;
-        } else {
-          vm.inventory = data;
-          hasActiveInventory = true;
-        }
+      console.log(JSON.stringify(data));
+      if(!data) {
+        return false;
+      } else {
+        vm.inventory = data;
+        hasActiveInventory = true;
+      }
+    });
+    //get discounts
+    DataServices.get('_design/discounts_ddoc').then(function(doc){
+      // console.log(JSON.stringify(doc));
+      if(doc.message == 'missing'){
+        var ddoc = {
+          _id:'_design/discounts_ddoc',
+          views:{
+            'all':{
+              map:function(doc){
+                if(doc.doc_type == 'discounts'){
+                  emit(doc._id,null);
+                }
+              }.toString()
+            }
+          }
+        };
+
+        $q.when(_db.put(ddoc));
+      }
+
+      DataServices.query('discounts_ddoc/all',{include_docs:true}).then(function(docs){
+        vm.discounts = docs.rows;
+        console.log(docs);
+      });
     });
 
     //get current user id
@@ -139,7 +167,16 @@
       } else {
         // getItems(activePCategory,pcategory);
         DataServices.getItems(activePCategory,pcategory).then(function(data) {
+          data.forEach(function(val,idx){
+            vm.order.items.forEach(function(item,i){
+              if(item._id == val._id){
+                val.hasItem = true;
+              }
+            });
+          });
+
           vm._items = data;
+          console.log(data);
         });
         $scope.itemsModal.show();
       }
@@ -205,6 +242,13 @@
         item.quantity = vm.quantity;
         item.amount = item.quantity * item.SALESPRICE;
         vm.order.items.push(item);
+
+        //tag item as selected
+        vm._items.forEach(function(v,i){
+          if(v._id == item._id){
+            v.hasItem == true;
+          }
+        });
       }
 
       updateOrder();
@@ -214,6 +258,10 @@
     }
 
     $scope.removeItemOrder = function(item) {
+      if(!confirm('Remove item?')){
+        return 0;
+      }
+
       var items = vm.order.items;
       items.forEach(function(i, idx){
         if(item._id == i._id) {
@@ -227,6 +275,17 @@
       }
     }
 
+    $scope.addDiscount = function(discount){
+      // console.log(discount);
+      vm.order.discount = discount;
+      updateOrder();
+    }
+
+    $scope.removeDiscount = function(){
+      vm.order.discount = null;
+      updateOrder();
+    }
+
     function updateOrder() {
       var amount = 0;
       var items = vm.order.items;
@@ -236,9 +295,20 @@
       });
 
       if(vm.order.discount !== null) {
-        var discount = vm.order.discount.percent * amount;
-        vm.order.discount.amount = discount;
-        vm.order.total = amount - discount;
+        if(vm.order.discount.multiplier > 1){
+          var discount = 0;
+          var total = amount;
+          for(var i = 0; i < vm.order.discount.multiplier; i++){
+            discount = vm.order.discount.value * total;
+            total -= discount;
+          }
+          vm.order.discount.amount = amount - total;
+          vm.order.total = total;
+        }else if(vm.order.discount.multiplier == 1){
+          var discount = vm.order.discount.value * amount;
+          vm.order.discount.amount = discount;
+          vm.order.total = amount - discount;
+        }
       } else {
         vm.order.total = amount;
       }
@@ -272,13 +342,14 @@
       vm.item = item;
 
       $scope.quantityModal.show();
+      $scope.itemsModal.hide();
     }
 
     $scope.inputQty = function() {
       var qty = parseInt(prompt("Enter Quantity"),10);
-      // qty = parseInt(qty,10);
 
       if(qty == "" || qty == null || isNaN(qty)) {
+        alert('Invalid quantity');
         return 0;
       }
 
@@ -307,29 +378,46 @@
     }
 
     $scope.getCustomerList = function(area,zip,city,address) {
+      $ionicLoading.show({});
       switch(area){
         case 'zip':
-          $q.when(_db.query('customers_ddoc/zip',{group:true},function(err,res){
-            if(err){console.log(err);}
+          // $q.when(_db.query('customers_ddoc/zip',{group:true},function(err,res){
+          //   if(err){console.log(err);}
 
-            vm._customers = res.rows;
-            // console.log(vm._customers);
-          }));
+          //   vm._customers = res.rows;
+          //   // console.log(vm._customers);
+          //   $ionicLoading.hide();
+          // }));
+          DataServices.query('customers_ddoc/zip',{group:true}).then(function(data){
+            console.log(data);
+            vm._customers = data.rows;
+            $ionicLoading.hide();
+          })
           break;
         case 'city':
           // console.log(zip);
           vm.zip = zip.key;
-          $q.when(_db.query('customers_ddoc/city',{include_docs:true,startkey:zip.key,endkey:zip.key+'\uffff'},function(err,res){
-            if(err){console.log(err);}
+          // $q.when(_db.query('customers_ddoc/city',{include_docs:true,startkey:zip.key,endkey:zip.key+'\uffff'},function(err,res){
+          //   if(err){console.log(err);}
 
-            var cities = [];
-            // console.log(res);
-            res.rows.forEach(function(row){
-              cities.push(row.doc.bill_to_city);
+          //   var cities = [];
+          //   // console.log(res);
+          //   res.rows.forEach(function(row){
+          //     cities.push(row.doc.bill_to_city);
+          //   });
+          //   vm._customers = cities.filter(distinct);
+          //   // console.log(vm._customers);
+          //   $ionicLoading.hide();
+          // }));
+          DataServices.query('customers_ddoc/city',{include_docs:true, startkey:zip.key,endkey:zip.key+'\uffff'})
+            .then(function(data) {
+              var cities = [];
+              data.rows.forEach(function(row){
+                cities.push(row.doc.bill_to_city);
+              });
+              vm._customers = cities.filter(distinct);
+              $ionicLoading.hide();
             });
-            vm._customers = cities.filter(distinct);
-            // console.log(vm._customers);
-          }));
           break;
         case 'address':
           vm.city = city;
@@ -343,6 +431,7 @@
             });
             vm._customers = address.filter(distinct);
             // console.log(vm._customers);
+            $ionicLoading.hide();
           }));
           break;
         case 'customer':
@@ -355,6 +444,7 @@
             });
             vm._customers = customer;
             // console.log(vm._customers);
+            $ionicLoading.hide();
           }));
         break;
       }
@@ -378,11 +468,12 @@
               vm.payment.cash.amount = vm.amount;
               break;
             case 1:
-              var days = prompt("Enter number of Days.", "15");
+              var days = parseInt(prompt("Enter number of Days"),10);
 
               //filter this to accept numbers
-              if(days == "") {
-                return;
+              if(days == "" || days == null || isNaN(days)) {
+                alert('Invalid number');
+                return 0;
               }
 
               vm.payment.terms.amount = vm.amount;
@@ -434,7 +525,48 @@
       // console.log(vm.amount);
     }
 
+    $scope.checkPrinter = function() {
+      if(vm.checkout_options.printer){
+        checkPrinter();
+      }
+    }
+
+    function checkPrinter() {
+      $ionicLoading.show({template:'Connecting to printer...'})
+      DataServices.get('_local/printer').then(function(res){
+        if(res.message == 'missing'){
+          alert('Set printer to print');
+        }else{
+          // printer = res.printer;
+          BTPrinter.connect(function(success){
+            vm.printer_status = true;
+          },function(error){
+            vm.printer_status = false;
+          },res.printer);
+
+          BTPrinter.disconnect();
+        }
+
+        $ionicLoading.hide();
+      });
+    }
+
     // FINISH SALE AND SAVE TO DATABSE =================================================
+    $scope.showCheckOut = function() {
+      DataServices.get('_local/checkout_options').then(function(docs){
+        if(docs.message == 'missing'){return 0;}
+
+        vm.checkout_options = docs;
+
+        if(vm.checkout_options.printer) {
+          checkPrinter();
+        }
+      });
+
+
+      $scope.optionModal.show();
+    }
+
     $scope.checkOut = function() {
       // console.log(vm.order);
       var now = moment();
@@ -461,18 +593,24 @@
         DataServices.put(sale).then(function(result) {
           console.log(result);
           if(result.ok) {
-            alert('Checkout done.');
+            // alert('Checkout done.');
             DataServices.get(result.id).then(function(data) {
-              exportToCSV(data);
+              if(vm.checkout_options.export){
+                exportToCSV(data);
+              }
+              if(vm.checkout_options.printer && vm.printer_status){
+                print(data);
+              }
+              DataServices.put(vm.inventory).then(function(result) {
+                console.log(result);
+              });
+              DataServices.getActiveInventory().then(function(data) {
+                vm.inventory = data;
+              });
+              $scope.optionModal.hide();
             });
           }
           resetVars();
-        });
-        DataServices.put(vm.inventory).then(function(result) {
-          console.log(result);
-        });
-        DataServices.getActiveInventory().then(function(data) {
-          vm.inventory = data;
         });
       }
 
@@ -482,11 +620,20 @@
       }
     }
 
+    $scope.cancelSale = function() {
+      if(!confirm('Cancel sale now?')){
+        return 0;
+      }
+
+      resetVars();
+      $scope.optionModal.hide();
+    }
+
     function resetVars(){
       vm.order.items = [];
       vm.order.total = 0;
       vm.payment = {cash:{},terms:{},check:[]};
-      // vm.customer.company = 'Walk-In';
+      vm.customer.name = 'Walk-In';
       vm.amount = 0;
       vm.quantity = 1;
       // getInventory();
@@ -528,10 +675,65 @@
       inventory.customer = null;
 
       DataServices.saveInventory(inventory).then(function(data){
-        resetVars();
-        vm.isInventory = false;
+        if(data.ok) {
+          resetVars();
+          vm.isInventory = false;
+          alert('Inventory id '+data.id+' saved');
+          $scope.optionModal.hide();
+          // console.log(data);
+        }
       });
+    }
 
+    function print(sale) {
+      var obj = sale.items;
+
+      BTPrinter.connect(function(success){
+        //center align
+        BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
+        BTPrinter.printText(function(){},function(){},"Great Value Inc.\n");
+        BTPrinter.printText(function(){},function(){},"Laguna\n\n\n");
+        //left align
+        BTPrinter.printPOSCommand(function(){},function(){},"1B 61 00");
+        BTPrinter.printText(function(){},function(){},"Customer: "+sale.customer.name+"\n");
+        BTPrinter.printText(function(){},function(){},"Date: "+moment(sale.date).format("YYYY-MM-DD")+"\n\n");
+        //print obj
+        obj.forEach(function(v,i){
+          BTPrinter.printText(function(){},function(){},
+            v.quantity+" "+
+            v._id.slice(6)+
+            "      @"+
+            v.SALESPRICE+
+            "      "+
+            v.amount+
+            "\n");
+        });
+
+        //center
+        BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
+
+        BTPrinter.printText(function(){},function(){},"-------------------------\n");
+
+        //left
+        BTPrinter.printPOSCommand(function(){},function(){},"1B 61 00");
+        BTPrinter.printText(function(){},function(){},"SUB-TOTAL        "+sale.subtotal+"\n");
+        if(sale.discount !== null){
+          BTPrinter.printText(function(){},function(){},"DISCOUNT         "+sale.discount.amount+"\n");
+        }
+        BTPrinter.printText(function(){},function(){},"TOTAL            "+sale.total+"\n\n\n");
+
+        //center again
+        BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
+        BTPrinter.printText(function(){},function(){},"Thank You!");
+
+        //feed 3 lines
+        BTPrinter.printPOSCommand(function(){},function(){},"1B 64 03");
+
+        BTPrinter.disconnect();
+
+      },function(error){
+        console.log(error);
+      },"Bluetooth Printer");
     }
 
     function exportToCSV(sale) {
@@ -619,25 +821,27 @@
       //   console.log(error);
       // });
 
-      BTPrinter.connect(function(data){
-        console.log('connected');
-        console.log(data);
+      // if(vm.checkout_options.printer){
+      //   BTPrinter.connect(function(data){
+      //     console.log('connected');
+      //     console.log(data);
 
-        BTPrinter.printText(function(data){
-          console.log('printed');
-          console.log(data);
-          // sleep(20);
-          // BTPrinter.disconnect(function(data){
-          //   console.log(data);
-          // },function(err){
-          //   console.log(err);
-          // });
-        },function(error){
-          console.log(error);
-        },'Hello Printer');
-      },function(error){
-        console.log(error);
-      },"Bluetooth Printer");
+      //     BTPrinter.printText(function(data){
+      //       console.log('printed');
+      //       console.log(data);
+      //       // sleep(20);
+      //       // BTPrinter.disconnect(function(data){
+      //       //   console.log(data);
+      //       // },function(err){
+      //       //   console.log(err);
+      //       // });
+      //     },function(error){
+      //       console.log(error);
+      //     },'Hello Printer');
+      //   },function(error){
+      //     console.log(error);
+      //   },"Bluetooth Printer");
+      // }
 
     }
 
