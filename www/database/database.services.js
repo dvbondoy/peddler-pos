@@ -1,5 +1,23 @@
 (function() {
 'use strict';
+  _db = new PouchDB('peddlerpos',{adapter:'websql'});
+  // _db.destroy();
+  // _db.setSchema([
+  //     {
+  //       singular:'category',
+  //       plural:'categories',
+  //       relations:{
+  //         'items':{hasMany:{type:'item',options:{queryInverse:'category'}}}
+  //       }
+  //     },
+  //     {
+  //       singular:'item',
+  //       plural:'items',
+  //       relations:{
+  //         'category':{belongsTo:'category'}
+  //       }
+  //     }
+  //   ]);
 
   angular
     .module('app.database')
@@ -7,6 +25,55 @@
 
   DataServices.$inject = ['$q'];
   function DataServices($q) {
+
+    // var a = $q.when(_db.rel.save('category',{
+    //   id:1,
+    //   name:'Top Category 1',
+    //   categories:[12,13]
+    // }).then(function(){
+    //   return _db.rel.save('category',{
+    //     id:12,
+    //     name:'Sub Category 1',
+    //     category:1
+    //   });
+    // }).then(function(){
+    //   return _db.rel.save('category',{
+    //     id:13,
+    //     name:'Sub Category 2',
+    //     category:1
+    //   });
+    // }).then(function(){
+    //   return _db.rel.find('category');
+    // }));
+
+    // $q.when(_db.rel.save('item',{
+    //   id:4,
+    //   description:'item one',
+    //   category:1
+    // }).then(function(){
+    //   return _db.rel.save('item',{
+    //     id:5,
+    //     description:'item two',
+    //     category:1
+    //   });
+    // }).then(function(){
+    //   return _db.rel.save('item',{
+    //     id:6,
+    //     description:'item three',
+    //     category:12
+    //   });
+    // }).then(function(){
+    //   return false;
+    //   // return _db.rel.find('category');
+    // }));
+
+    // console.log('b');
+    // console.log(b);
+    // console.log($q.when(_db.rel.findHasMany('item','category')));
+
+    // console.log('a');
+    // console.log(a);
+
     var service = {
       get:get,
       put:put,
@@ -96,6 +163,7 @@
         } else {
           return docs.rows[0].doc;
         }
+        // return docs;
       }));
 
     }

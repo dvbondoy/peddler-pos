@@ -14,22 +14,29 @@
         state: 'app.settings',
         config: {
           url: '/settings',
-          templateUrl: 'settings/settings.html',
+          templateUrl: 'settings/templates/settings.html',
           controller: 'SettingsController'
         }
       },
       {
-        state: 'app.inventory',
+        state: 'app.category',
         config: {
-          url: '/inventory',
-          templateUrl: 'settings/templates/inventory.html'
+          url: '/category',
+          templateUrl: 'settings/templates/category.html'
         }
       },
       {
-        state: 'app.printer',
+        state: 'app.customer',
         config: {
-          url: '/printer',
-          templateUrl: 'settings/templates/printer.html'
+          url: '/customer',
+          templateUrl: 'settings/templates/customer.html'
+        }
+      },
+      {
+        state: 'app.discount',
+        config: {
+          url: '/discount',
+          templateUrl: 'settings/templates/discount.html'
         }
       }
     ];

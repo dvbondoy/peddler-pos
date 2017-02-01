@@ -1,0 +1,28 @@
+{
+  "name": "relational-pouch",
+  "version": "1.4.5",
+  "description": "PouchDB, relational-style",
+  "homepage": "https://github.com/nolanlawson/relational-pouch",
+  "authors": [
+    "Nolan Lawson <nolan.lawson@gmail.com>"
+  ],
+  "main": "dist/pouchdb.relational-pouch.js",
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "relational",
+    "pouch",
+    "pouchdb",
+    "couchdb"
+  ],
+  "license": "Apache 2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "vendor"
+  ]
+}

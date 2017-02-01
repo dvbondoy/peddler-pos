@@ -1,0 +1,28 @@
+<ion-modal-view>
+	<ion-header-bar align-title="center" class="bar-positive">
+		<div class="buttons">
+			<button class="button button-icon ion-close" ng-click="newItemModal.hide()"></button>
+			<h1 class="title">New Item</h1>
+			<button class="button button-icon ion-checkmark" ng-click="saveItem()"></button>
+		</div>
+	</ion-header-bar>
+	<ion-content has-subheader="false">
+		<div class="list">
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Description</span>
+				<input type="text" ng-model="vm.item.description">
+			</label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Print Description</span>
+				<input type="text" ng-model="vm.item.print_description">
+			</label>
+			<label class="item item-input item-stacked-label">
+				<span class="input-label">Price</span>
+				<input type="text" ng-model="vm.item.price">
+			</label>
+
+			<button class="button button-block button-assertive" ng-show="vm.isAdd == false" ng-click="removeItem()">Delete</button>
+
+		</div>
+	</ion-content>
+</ion-modal-view>

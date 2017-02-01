@@ -1,0 +1,101 @@
+<ion-view view-title="Settings" ng-controller="SettingsController as vm">
+  <ion-content class="">
+    <div class="padding">
+      <h4 class="gray padding-left">
+        GENERAL OPTIONS
+      </h4>
+      <ion-list>
+        <ion-item class="item-icon-right no-border" ui-sref="app.category">
+          <div>
+            <span class="bold">Manage Items/Categories</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+
+        <ion-item class="item-icon-right no-border" ui-sref="app.customer">
+          <div>
+            <span class="bold">Manage Customers</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+      </ion-list>
+
+      <h4 class="gray padding-left">
+        SALES OPTIONS
+      </h4>
+      <ion-list>
+        <!-- <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Products & Categories</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Customers</span>
+            <span class="pull-right">12</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item> -->
+        <ion-item class="item-icon-right no-border" ui-sref="app.discount">
+          <div>
+            <span class="bold">Discounts</span>
+            <span class="pull-right">{{vm.discounts_count}}</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Taxes</span>
+            <span class="pull-right">12</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+      </ion-list>
+
+      <h4 class="gray padding-left">CHECKOUT OPTIONS</h4>
+      <ion-list>
+        <ion-item class="item-toggle no-border">
+          <span class="bold">Print receipt</span>
+          <label class="toggle">
+            <input type="checkbox" ng-model="vm.checkout_options.printer" ng-change="printerOptions()">
+            <div class="track">
+              <div class="handle"></div>
+            </div>
+          </label>
+        </ion-item>
+      </ion-list>
+
+      <h4 class="gray padding-left">DATABASE MAINTENANCE</h4>
+      <ion-list>
+        <ion-item class="item-icon-right no-border" ng-click="purgeDatabase()">
+          <div>
+            <span class="bold">Purge Database</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+      </ion-list>
+
+      <h4 class="gray padding-left">HARDWARE</h4>
+      <ion-list>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Device name</span>
+            <span class="pull-right">POS1</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Printers</span>
+            <span class="pull-right">{{vm.printer}}</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+      </ion-list>
+      <div class="padding margin-top-30">
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

@@ -1,7 +1,7 @@
 {
-  "name": "ionpos",
+  "name": "peddlerpos",
   "version": "1.1.1",
-  "description": "ionPOS: An Ionic project",
+  "description": "point of sale",
   "dependencies": {
     "gulp": "^3.5.6",
     "gulp-sass": "^2.0.4",

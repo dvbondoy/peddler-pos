@@ -7,17 +7,17 @@
     </div>
     <h1 class="title">Set Quantity</h1>
     <div class="buttons">
-      <button class="button button-icon" ng-click="addItemOrder(vm.item);quantityModal.hide()">
+      <button class="button button-icon" ng-click="addToOrder(vm.item);quantityModal.hide()">
         <i class="icon ion-checkmark"></i>
       </button>
     </div>
   </ion-header-bar>
   <ion-content>
     <div class="padding">
-      <h2 class="gray">{{vm.item.DESCRIPTION}}</h2>
+      <h2 class="gray">{{vm.item.description}}</h2>
       <div class="row item-qty">
         <div class="col-20">
-          <button class="button button-light" ng-click="vm.quantity = vm.quantity - 1">
+          <button class="button button-light" ng-click="vm.quantity == 1 ? vm.quantity = 1 : vm.quantity = vm.quantity - 1">
             <i class="ion-minus"></i>
           </button>
         </div>

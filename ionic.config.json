@@ -1,5 +1,5 @@
 {
-  "name": "ECCDroid",
+  "name": "PeddlerPOS",
   "app_id": "993e4936",
   "gulpStartupTasks": [
     "sass",

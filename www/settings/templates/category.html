@@ -1,0 +1,41 @@
+<ion-view view-title="Items|Categories" ng-controller="CategoryController as vm">
+	<ion-nav-bar class="bar-stable" align-title="center">
+		<ion-nav-back-button class="button-clear">Back</ion-nav-back-button>
+		<ion-nav-buttons side="right">
+			<!-- <button class="button button-icon" ng-click="newCategory()">+Category</button>
+			<button class="button button-icon">+Item</button> -->
+		</ion-nav-buttons>
+	</ion-nav-bar>
+	<ion-header-bar class="bar bar-subheader">
+		<div class="button-bar padding-bottom">
+			<button class="button button-royal icon-left ion-plus" ng-click="newCategory()">Category</button>
+			<button class="button button-energized icon-left ion-plus" ng-click="newItem()">Item</button>
+		</div>
+	</ion-header-bar>
+	<ion-content has-subheader="true">
+		<div class="padding">
+			<ion-list>
+				<ion-item ng-if="vm.categories.length == 0 && vm.items.length == 0">
+					<div class="assertive">
+						Nothing yet!
+					</div>
+				</ion-item>
+				<ion-item class="item-icon-right" ng-repeat="category in vm.categories" ng-click="selectCategory(category)">
+					<div>
+						{{category.value}}
+						
+					</div>
+					<i class="icon ion-ios-arrow-right"></i>
+					<!-- <span class="badge badge-assertive">0</span> -->
+				</ion-item>
+				<ion-item ng-repeat="item in vm.items" ng-click="viewItem(item)">
+					{{item.description}}
+					<p>{{item.price | currency:'Php '}}</p>
+				</ion-item>
+			</ion-list>
+		</div>
+	</ion-content>
+	<ion-footer-bar align-title="left" class="badge-assertive">
+		<button class="button button-block button-balanced ng-hide" ng-click="prevCategory()" ng-show="vm.showBack">Back</button>
+	</ion-footer-bar>
+</ion-view>

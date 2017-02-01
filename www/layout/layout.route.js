@@ -5,7 +5,7 @@
 
   appRun.$inject = ['routerHelper'];
   function appRun(routerHelper) {
-    routerHelper.configureStates(getStates(), '/app/order');
+    routerHelper.configureStates(getStates(), '/app/login');
   }
 
   function getStates() {
@@ -19,19 +19,12 @@
         }
       },
       {
-        state: 'app.order',
+        state: 'app.login',
         config: {
-          url: '/order',
-          templateUrl: 'sales/templates/home.html'
+          url: '/login',
+          templateUrl: 'layout/login.html'
         }
       }
-      // {
-      //   state: 'app.login',
-      //   config: {
-      //     url: '/login',
-      //     templateUrl: 'layout/login.html'
-      //   }
-      // }
     ];
   }
 })();

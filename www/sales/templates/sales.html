@@ -1,5 +1,5 @@
 
-<ion-view ng-controller="SalesController as vm" view-title="{{vm.order.items.length == 0 && vm.customer.company == 'Walk-In' ? 'No Sale' : vm.customer.company + ' ( ' + vm.order.total_items + ' )'}}">
+<ion-view ng-controller="SalesController as vm" view-title="">
   <ion-nav-bar class="bar-stable bar-no-border" align-title="center">
     <!-- Back button -->
     <ion-nav-back-button>
@@ -14,8 +14,8 @@
 
     <!-- View order button-->
     <ion-nav-buttons side="right">
-      <button class="button button-icon button-clear ion-person-add" ng-click="customerModal.show()"></button>
-      <button class="button button-icon button-clear ion-android-done-all" ng-click="saveSale()" ng-disabled="vm.order.items.length == 0"></button>
+      <!-- <button class="button button-icon button-clear ion-person-add" ng-click="customerModal.show()"></button>
+      <button class="button button-icon button-clear ion-android-done-all" ng-click="saveSale()" ng-disabled="vm.order.items.length == 0"></button> -->
     </ion-nav-buttons>
 
   </ion-nav-bar>
@@ -24,8 +24,8 @@
     <!--balance info-->
     <div class="padding stable-bg" ng-click="paymentDetailsModal.show()">
       <div class="calm-bg padding text-center light text-2x">
-        <span ng-show="vm.order.total == 0">Charge</span>
-        {{ vm.order.total | currency : "Php " }}
+        <!-- <span ng-show="vm.order.total == 0">Charge</span> -->
+        <!-- {{ vm.order.total | currency : "Php " }} -->
       </div>
     </div>
 

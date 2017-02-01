@@ -1,0 +1,18 @@
+<ion-view view-title="Categories">
+<ion-nav-bar class="bar-positive" align-title="center">
+	<ion-nav-back-button class="button-clear">
+		Back
+	</ion-nav-back-button>
+	<ion-nav-buttons side="right">
+		<button class="button button-icon ion-plus"></button>
+	</ion-nav-buttons>
+</ion-nav-bar>
+	<ion-content has-subheader="false">
+		<ion-list>
+			<ion-item ng-repeat="category in ['Category One','Category Two']">
+			{{category}}
+			<span class="badge badge-positive pull-right">0</span>
+			</ion-item>
+		</ion-list>
+	</ion-content>
+</ion-view>

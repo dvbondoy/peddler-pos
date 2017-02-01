@@ -19,7 +19,7 @@
       }
     });
 
-    _db = new PouchDB('peddler', {adapter:'websql',auto_compaction:true});
+    _db = new PouchDB('peddlerpos', {adapter:'websql'});
     // _db.info().then(function(info){
     //   console.log(info);
     // });

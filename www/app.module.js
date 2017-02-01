@@ -8,11 +8,14 @@
     'ionic-datepicker',
     'app.core',
     'app.layout',
-    'app.database',
+    'app.pouch',
+    'app.model',
     'app.settings',
-    'app.product',
-    'app.sales',
-    'app.people',
-    'app.report'
+    'app.sales'
+    // 'app.database',
+    // 'app.item',
+    // 'app.product',
+    // 'app.people',
+    // 'app.report'
   ]);
 })();
