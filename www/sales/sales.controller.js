@@ -5,8 +5,8 @@
     .module('app.sales')
     .controller('SalesController', SalesController);
 
-    SalesController.$inject = ['$scope','Item','$ionicModal','ionicDatePicker','$ionicActionSheet'];
-    function SalesController($scope,Item,$ionicModal,ionicDatePicker,$ionicActionSheet) {
+    SalesController.$inject = ['$scope','Item','$ionicModal','ionicDatePicker','$ionicActionSheet','Discount'];
+    function SalesController($scope,Item,$ionicModal,ionicDatePicker,$ionicActionSheet,Discount) {
       var vm = this;
       var category = null;
 
@@ -14,7 +14,7 @@
       vm.filterText = 'Items';
       vm.order = {
         items:[],
-        discount:{discounts:[],total:0},
+        discount:null,
         customer:{company:'Walk-in'},
         subtotal:0,
         tax:0,
@@ -70,6 +70,12 @@
           vm.items = result;
         });
       }
+
+      Discount.getDiscounts().then(function(result){
+        console.log('getDiscounts');
+        console.log(result);
+        vm.discounts = result;
+      });
 
       $scope.openCategory = function(id) {
 
@@ -132,10 +138,18 @@
         }
       }
 
+      $scope.addDiscount = function(discount) {
+        vm.order.discount = discount;
+        updateOrderInfo();
+
+        console.log('addDiscount');
+        console.log(vm.order.discount);
+      }
+
       $scope.setShipDate = function() {
         ionicDatePicker.openDatePicker({
           callback:function(value) {
-            vm.ship_by = moment(value).format("YYYY-MM-DD");
+            vm.ship_date = moment(value).format("YYYY-MM-DD");
           }
         });
       }
@@ -149,13 +163,18 @@
         vm.order.items.forEach(function(val){
           vm.order.subtotal += val.amount;
         });
-        vm.order.charge = vm.order.subtotal - (vm.order.discount.total + vm.order.tax);
+
+        if(vm.order.discount !== null) {
+
+        }
+
+        // vm.order.charge = vm.order.subtotal - (vm.order.discount.total + vm.order.tax);
+        vm.order.charge = vm.order.subtotal;
 
         console.log(vm.order);
       }
 
       $scope.chooseFilter = function() {
-        // console.log(SharedProperties.getProperty());
         var menu = [
           {
             text: 'Items'
@@ -199,21 +218,16 @@
             switch(index){
               case 0:
                 vm.order.payments.cash.amount = vm.amount;
-                // vm.payments.cash.amount = vm.amount;
                 break;
               case 1:
                 var days = parseInt(prompt("Enter number of Days"),10);
 
-                //filter this to accept numbers
                 if(days == "" || days == null || isNaN(days)) {
                   alert('Invalid number');
                   return 0;
                 }
 
-                // vm.order.payments.push({terms:{amount:vm.amount,days:days}});
                 vm.order.payments.terms = {amount:vm.amount,days:days};
-                // vm.payments.terms.amount = vm.amount;
-                // vm.payments.terms.days = days;
                 vm.order.due_date = moment().add(days, "days");
                 break;
               case 2:
@@ -233,7 +247,7 @@
         var sale = vm.order;
         sale.type = 'sale';
         sale._id = 'sale/'+Date.now();
-        sale.ship_date = Date.now();
+        // sale.ship_date = Date.now();
 
         var total_payment = function() {
           var amount = 0;
@@ -253,8 +267,6 @@
           alert('Insuficient amount.');
           return 0;
         }
-
-
       }
 
       $scope.$on('$destroy', function(){

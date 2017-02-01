@@ -131,11 +131,11 @@
           </div>
         </ion-item>
 
-        <ion-item class="item-icon-left item-icon-right" ng-repeat="discount in vm.discounts" ng-click="addDiscount(discount.doc)" ng-show="vm.filterText == 'Discounts'">
+        <ion-item class="item-icon-left item-icon-right" ng-repeat="discount in vm.discounts" ng-click="addDiscount(discount)" ng-show="vm.filterText == 'Discounts'">
           <i class="icon ion-pricetag"></i>
           <div class="padding-left">
-            {{ discount.doc.name }}
-            <span class="pull-right" ng-show="vm.order.discount._id == discount.doc._id"><i class="icon ion-checkmark-circled"></i></span>
+            {{ discount.description }}
+            <!-- <span class="pull-right" ng-show="vm.order.discount._id == discount.doc._id"><i class="icon ion-checkmark-circled"></i></span> -->
           </div>
         </ion-item>
 
@@ -146,7 +146,7 @@
       <div class="">
         <ion-list>
           <ion-item ng-if="vm.order.items.length == 0">
-            <div>No item selected yet</div>
+            <div class="assertive">No item selected yet</div>
           </ion-item>
           <ion-item ng-repeat="item in vm.order.items" ng-click="removeToOrder(item)">
             <div>
