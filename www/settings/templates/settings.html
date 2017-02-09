@@ -40,7 +40,7 @@
         <ion-item class="item-icon-right no-border" ui-sref="app.discount">
           <div>
             <span class="bold">Discounts</span>
-            <span class="pull-right">{{vm.discounts_count}}</span>
+            <span class="pull-right">{{Discount.count();vm.discount_count}}</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
@@ -86,7 +86,7 @@
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
 
-        <ion-item class="item-icon-right no-border">
+        <ion-item class="item-icon-right no-border" ui-sref="app.printer">
           <div>
             <span class="bold">Printers</span>
             <span class="pull-right">{{vm.printer}}</span>

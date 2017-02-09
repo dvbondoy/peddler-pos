@@ -1,0 +1,20 @@
+<ion-view view-title="Units" ng-controller="SettingsController as vm">
+	<ion-nav-bar class="bar-positive" align-title="left">
+		<ion-nav-back-button class="button-clear">Back</ion-nav-back-button>
+		<ion-nav-buttons side="right">
+			<button class="button button-icon ion-plus"></button>
+		</ion-nav-buttons>
+	</ion-nav-bar>
+
+	<ion-content has-subheader="false">
+		<div class="padding">
+			<h2>{{Uoms.item.description}}</h2>
+			<div class="list">
+				<label class="item item-input item-stacked-label">
+					<span class="input-label">Unit</span>
+					<input type="text">
+				</label>
+			</div>
+		</div>
+	</ion-content>
+</ion-view>

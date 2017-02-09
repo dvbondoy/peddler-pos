@@ -7,7 +7,7 @@
   <ion-content>
     <div class="padding">
       <ion-list>
-        <ion-item ng-repeat="printer in vm.devices" ng-click="savePrinter(printer);printerModal.hide()">
+        <ion-item ng-repeat="printer in Printer.devices" ng-click="Printer.set(printer);printerModal.hide()">
           {{printer}}
         </ion-item>
       </ion-list>

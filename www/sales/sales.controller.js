@@ -5,27 +5,396 @@
     .module('app.sales')
     .controller('SalesController', SalesController);
 
-    SalesController.$inject = ['$scope','Item','$ionicModal','ionicDatePicker','$ionicActionSheet','Discount'];
-    function SalesController($scope,Item,$ionicModal,ionicDatePicker,$ionicActionSheet,Discount) {
+    SalesController.$inject = ['$scope','Item','$ionicModal','ionicDatePicker','$ionicActionSheet','Discount','Sales','Customer','$ionicLoading'];
+    function SalesController($scope,Item,$ionicModal,ionicDatePicker,$ionicActionSheet,Discount,Sales,Customer,$ionicLoading) {
       var vm = this;
-      var category = null;
 
       vm.tab = {active:'library'};
       vm.filterText = 'Items';
-      vm.order = {
-        items:[],
-        discount:null,
-        customer:{company:'Walk-in'},
-        subtotal:0,
-        tax:0,
-        charge:0,
-        payments:{cash:{},terms:{},check:[]}
-      };
       vm.amount = 0;
 
-      getCategories(category);
-      getItemsByCategory(category);
+      $scope.Items = {
+        category:null,
+        list:[],
+        categories:[],
+        select:function(item){
+          vm.item = item;
+          vm.quantity = 1;
+          
+          $scope.quantityModal.show();
+        },
+        getByCategory:function(category){
+          var items = this;
 
+          Item.getItemsByCategory(category).then(function(result){
+            items.list = result;
+          });
+        },
+        getCategories:function(category){
+          var items = this;
+
+          Item.getCategories(category).then(function(result){
+            items.category !== null ? vm.showBack = true : vm.showBack = false;
+
+            items.categories = result;
+          });
+        },
+        openCategory:function(id){
+          this.category = id;
+
+          this.getCategories(this.category);
+
+          this.getByCategory(this.category);
+        },
+        prevCategory:function(){
+          this.category = this.category.substring(0,this.category.lastIndexOf('/'));
+          
+          if(this.category == 'category/null'){this.category = null;}
+
+          this.getCategories(this.category);
+
+          this.getByCategory(this.category);
+        }
+      };
+
+      $scope.Uoms = {
+        item:null,
+        list:[],
+        add:function(um){
+
+        }
+      };
+
+      $scope.Customer = {
+        active:{company:'Walk-in'},
+        getAll:function(){
+          return false;
+        }
+      };
+
+      $scope.Order = {
+        items:[],
+        total_items:0,
+        total_amount:0,
+        ship_date:null,
+        addItem:function(item){
+          var order = this;
+
+          item.quantity = vm.quantity;
+
+          item.amount = vm.quantity * item.price;
+
+          var inOrder = false;
+
+          order.items.forEach(function(value,index){
+            if(item._id == value._id){
+              order.items[index].quantity = item.quantity;
+
+              order.items[index].amount = item.amount;
+
+              inOrder = true;
+            }
+          });
+
+          if(!inOrder){
+            order.items.push(item);
+          }
+
+          order.updateOrder();
+        },
+        remove:function(item){
+          var order = this;
+
+          if(confirm('Remove Item from order?')){
+            order.items.forEach(function(value, index){
+              if(value._id == item._id){
+                order.items.splice(index,1);
+              }
+            });
+
+            order.updateOrder();
+          }
+        },
+        reset:function(){
+          var order = this;
+          var discounts = $scope.Discounts;
+          var payments = $scope.Payments;
+
+          order.items = [];
+          order.total_amount = 0;
+          order.total_items = 0;
+          order.ship_date = null;
+
+          payments.clear();
+
+          discounts.active = null;
+
+          vm.amount = 0;
+        },
+        updateOrder:function(){
+          var order = this;
+
+          var discounts = $scope.Discounts;
+
+          var amount = 0;
+
+          order.total_items = order.items.length;
+
+          order.items.forEach(function(value){
+            amount += value.amount;
+          });
+
+          order.total_amount = amount;
+
+          order.ship_date = moment().format("YYYY-MM-DD");
+        },
+        setShipDate:function(){
+          var order = this;
+
+          ionicDatePicker.openDatePicker({
+            callback:function(value) {
+              order.ship_date = moment(value).format("YYYY-MM-DD");
+            }
+          });
+        },
+        checkout:function(){
+          var order = this;
+          var payments = $scope.Payments;
+          var discounts = $scope.Discounts;
+          var customer = $scope.Customer;
+
+          var sale = {
+            type : 'sale',
+            _id : 'sale/'+Date.now(),
+            ship_date:order.ship_date,
+            subtotal:order.total_amount,
+            charge:payments.charge(),
+            discount:discounts.active,
+            customer:customer.active,
+            items:order.items
+          };
+
+          if(payments.total() < order.total_amount){
+            alert('Insuficient amount.');
+            return 0;
+          }
+
+          payments.change = payments.total() - payments.charge();
+
+          Sales.add(sale).then(function(result){
+            console.log(result);
+            if(result.ok){
+              $scope.checkoutModal.hide();
+              order.reset();
+              // alert('Done!');
+              alert('Change : '+payments.change);
+            }else if(result.error){
+              alert(result.message);
+            }
+          });
+        }
+      };
+
+      $scope.Customer = {
+        list:[],
+        active:{company:'Walk-in'},
+        view:function(){
+          var customer = this;
+
+          Customer.getAll().then(function(result){
+            customer.list = result;
+            $scope.customerModal.show();
+          });
+        },
+        select:function(cust){
+          var customer = this;
+
+          customer.active = cust;
+          $scope.customerModal.hide();
+        }
+      }
+
+      $scope.Discounts = {
+        list:[],
+        active:null,
+        getAll:function(){
+          var discounts = this;
+          
+          Discount.getAll().then(function(result){
+            discounts.list = result;
+          });
+        },
+        add:function(discount){
+          var discounts = this;
+          var order = $scope.Order;
+
+          discounts.active = discount;
+          order.updateOrder();
+        },
+        remove:function(){
+          this.active = null;
+        }
+      };
+
+      $scope.Payments = {
+        list:{cash:{amount:0},terms:{amount:0,days:0,due:null},check:[],change:0},
+        charge:function(){
+          var payments = this;
+          var discounts = $scope.Discounts;
+          var order = $scope.Order;
+          var amount = 0;
+
+          if(discounts.active !== null){
+            amount = order.total_amount - (order.total_amount * discounts.active.percentage)
+          }else{
+            amount = order.total_amount;
+          }
+
+          return amount;
+        },
+        total:function(){
+          var amount = 0;
+          //cash
+          amount += this.list.cash.amount;
+          //terms
+          amount += this.list.terms.amount;
+          //check
+          this.list.check.forEach(function(value){
+            amount += value.amount;
+          });
+
+          this.subtotal = amount;
+
+          return amount;
+        },
+        add:function(){
+          var payments = this;
+
+          var menu = [
+            {text:'Cash'},{text:'Terms'},{text:'Check'}
+          ];
+
+          var hideSheet = $ionicActionSheet.show({
+            buttons: menu,
+            cancelText: 'Cancel',
+            canel:function(){
+
+            },
+            buttonClicked:function(index){
+              switch(index){
+                case 0:
+                  payments.list.cash.amount = vm.amount;
+                  break;
+                case 1:
+                  var days = parseInt(prompt("Enter number of Days"),10);
+
+                  if(days == "" || days == null || isNaN(days)) {
+                    alert('Invalid number');
+                    return 0;
+                  }
+
+                  var due = moment().add(days, "days");
+
+                  payments.list.terms = {amount:vm.amount,days:days,due_date:due};
+                  break;
+                case 2:
+                  break;
+              }
+              payments.total();
+              return true;
+            }
+          });
+
+        },
+        clear:function(){
+          this.list = {cash:{amount:0},terms:{amount:0,days:0,due_date:null},check:[]};
+        }
+      };
+
+      $scope.Printer = {
+        status:'offline',
+        check:function(){
+          var printer = this;
+
+          $ionicLoading.show({template:'Connecting...'});
+
+          BTPrinter.connect(function(success){
+            printer.status = 'online';
+          },function(error){
+            alert(error);
+          },'Printer name');
+
+          BTPrinter.disconnect();
+          $ionicLoading.hide();
+        },
+        print:function(data){
+          var items = data.items;
+
+          BTPrinter.connect(function(success){
+            //center align
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
+            BTPrinter.printText(function(){},function(){},"Sari2x Store\n");
+            BTPrinter.printText(function(){},function(){},"123 St. Somewhere\n\n\n");
+            //left align
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 00");
+            BTPrinter.printText(function(){},function(){},"Customer: "+data.customer.company+"\n");
+            BTPrinter.printText(function(){},function(){},"Date: "+moment().format("YYYY-MM-DD")+"\n");
+            BTPrinter.printText(function(){},function(){},"Time: "+moment().format("h:mm:ss a")+"\n\n");
+            //print obj
+            items.forEach(function(value){
+              BTPrinter.printText(function(){},function(){},
+                value.quantity+" "+
+                value._id.slice(6)+
+                "      @"+
+                value.price+
+                "      "+
+                value.amount+
+                "\n");
+            });
+
+            //center
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
+
+            BTPrinter.printText(function(){},function(){},"-------------------------\n");
+
+            //left
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 00");
+            BTPrinter.printText(function(){},function(){},"SUB-TOTAL        "+data.subtotal+"\n");
+            if(sale.discount !== null){
+              BTPrinter.printText(function(){},function(){},"DISCOUNT         "+data.discount.amount+"\n");
+            }
+            BTPrinter.printText(function(){},function(){},"TOTAL            "+data.charge+"\n\n\n");
+
+            //center again
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
+            BTPrinter.printText(function(){},function(){},"Thank You!");
+
+            //feed 3 lines
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 64 03");
+
+            BTPrinter.disconnect();
+
+          },function(error){
+            console.log(error);
+          },"Bluetooth Printer");
+        }
+      };
+
+      $scope.promptQuantity = function(){
+        var qty = prompt('Enter Quantity');
+
+        if(qty == "" || qty == null || isNaN(qty) || qty == 0){
+          alert('Invalid value');
+          return 0;
+        }
+
+        vm.quantity = qty;
+      };
+
+      $scope.Items.getCategories($scope.Items.category);
+      $scope.Items.getByCategory($scope.Items.category);
+      $scope.Discounts.getAll();
+      
       // prep modals
       $ionicModal.fromTemplateUrl('sales/templates/quantity-modal.html',{
         scope:$scope,
@@ -47,132 +416,14 @@
       }).then(function(modal){
         $scope.customerModal = modal;
       });
-      // end of modals
 
-      function getCategories(id) {
-        Item.getCategories(id).then(function(result){
-
-          console.log('getCategories');
-          console.log(result);
-
-          category !== null ? vm.showBack = true : vm.showBack = false;
-
-          vm.categories = result;
-        });
-      }
-
-      function getItemsByCategory(category) {
-        Item.getItemsByCategory(category).then(function(result){
-
-          console.log('getItemsByCategory');
-          console.log(result);
-
-          vm.items = result;
-        });
-      }
-
-      Discount.getDiscounts().then(function(result){
-        console.log('getDiscounts');
-        console.log(result);
-        vm.discounts = result;
+      $ionicModal.fromTemplateUrl('sales/templates/payments-modal.html',{
+        scope:$scope,
+        animation:'slide-in-up'
+      }).then(function(modal){
+        $scope.paymentsModal = modal;
       });
-
-      $scope.openCategory = function(id) {
-
-        console.log('openCategory');
-        console.log(id);
-
-        category = id;
-        getCategories(category);
-        getItemsByCategory(category);
-      }
-
-      $scope.prevCategory = function() {
-        category = category.substring(0,category.lastIndexOf('/'));
-        
-        if(category == 'category/null'){category = null;}
-
-        getCategories(category);
-        getItemsByCategory(category);
-      }
-
-      $scope.selectItem = function(item) {
-        vm.item = item;
-        vm.quantity = 1;
-
-        console.log('selectItem');
-        console.log(vm.item);
-        
-        $scope.quantityModal.show();
-      }
-
-      $scope.addToOrder = function(item) {
-        item.quantity = vm.quantity;
-        item.amount = vm.quantity * item.price;
-        var inOrder = false;
-
-        vm.order.items.forEach(function(value,index){
-          if(item._id == value._id){
-            vm.order.items[index].quantity = item.quantity;
-            vm.order.items[index].amount = item.amount;
-            inOrder = true;
-          }
-        });
-
-        if(!inOrder){
-          vm.order.items.push(item);
-        }
-
-        updateOrderInfo();
-      }
-
-      $scope.removeToOrder = function(item) {
-        if(confirm('Remove Item from order?')){
-          vm.order.items.forEach(function(value, index){
-            if(value._id == item._id){
-              vm.order.items.splice(index,1);
-            }
-          });
-
-          updateOrderInfo();
-        }
-      }
-
-      $scope.addDiscount = function(discount) {
-        vm.order.discount = discount;
-        updateOrderInfo();
-
-        console.log('addDiscount');
-        console.log(vm.order.discount);
-      }
-
-      $scope.setShipDate = function() {
-        ionicDatePicker.openDatePicker({
-          callback:function(value) {
-            vm.ship_date = moment(value).format("YYYY-MM-DD");
-          }
-        });
-      }
-
-      function updateOrderInfo() {
-        vm.order.subtotal = 0;
-
-        console.log('updateOrderInfo');
-
-        vm.order.total_items = vm.order.items.length;
-        vm.order.items.forEach(function(val){
-          vm.order.subtotal += val.amount;
-        });
-
-        if(vm.order.discount !== null) {
-
-        }
-
-        // vm.order.charge = vm.order.subtotal - (vm.order.discount.total + vm.order.tax);
-        vm.order.charge = vm.order.subtotal;
-
-        console.log(vm.order);
-      }
+      // end of modals
 
       $scope.chooseFilter = function() {
         var menu = [
@@ -197,82 +448,11 @@
         });
       }
 
-      $scope.addPayment = function() {
-        vm.payments = {
-          cash:{},
-          terms:{},
-          check:[]
-        };
-
-        var menu = [
-          {text:'Cash'},{text:'Terms'},{text:'Check'}
-        ];
-
-        var hideSheet = $ionicActionSheet.show({
-          buttons: menu,
-          cancelText: 'Cancel',
-          canel:function(){
-
-          },
-          buttonClicked:function(index){
-            switch(index){
-              case 0:
-                vm.order.payments.cash.amount = vm.amount;
-                break;
-              case 1:
-                var days = parseInt(prompt("Enter number of Days"),10);
-
-                if(days == "" || days == null || isNaN(days)) {
-                  alert('Invalid number');
-                  return 0;
-                }
-
-                vm.order.payments.terms = {amount:vm.amount,days:days};
-                vm.order.due_date = moment().add(days, "days");
-                break;
-              case 2:
-                break;
-            }
-            console.log(vm.order);
-
-            return true;
-          }
-        });
-
-        console.log('addPayment');
-        console.log(vm.payments);
-      }
-
-      $scope.checkout = function() {
-        var sale = vm.order;
-        sale.type = 'sale';
-        sale._id = 'sale/'+Date.now();
-        // sale.ship_date = Date.now();
-
-        var total_payment = function() {
-          var amount = 0;
-
-          amount += vm.payments.cash.amount;
-          amount += vm.payments.terms.amount;
-
-          vm.payments.check.forEach(function(val){
-            amount += val.amount;
-          });
-          return amount;
-        };
-
-        console.log(sale);
-
-        if(total_payment < vm.order.charge){
-          alert('Insuficient amount.');
-          return 0;
-        }
-      }
-
       $scope.$on('$destroy', function(){
         $scope.quantityModal.remove();
         $scope.checkoutModal.remove();
         $scope.customerModal.remove();
+        $scope.paymentsModal.remove();
       });
 
       $scope.keyPressed = function(keyCode) {
@@ -299,17 +479,11 @@
           default:
           // Do nothing
         }
+  
+        function enter(keyCode) {
+          vm.amount = vm.amount * 10 + parseInt(keyCode.toString());
+        }
       }
 
-       
-      /**
-       * used by keyPressed function
-       * 
-       * @param {any} keyCode
-       */
-      function enter(keyCode) {
-        vm.amount = vm.amount * 10 + parseInt(keyCode.toString());
-        // console.log(vm.amount);
-      }
     }
 })();

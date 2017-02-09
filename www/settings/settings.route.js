@@ -22,7 +22,7 @@
         state: 'app.category',
         config: {
           url: '/category',
-          templateUrl: 'settings/templates/category.html'
+          templateUrl: 'settings/templates/items.html'
         }
       },
       {
@@ -37,6 +37,20 @@
         config: {
           url: '/discount',
           templateUrl: 'settings/templates/discount.html'
+        }
+      },
+      {
+        state: 'app.printer',
+        config: {
+          url: '/printer',
+          templateUrl: 'settings/templates/printer.html'
+        }
+      },
+      {
+        state: 'app.units',
+        config: {
+          url: '/units',
+          templateUrl: 'settings/templates/units.html'
         }
       }
     ];

@@ -14,48 +14,48 @@
     <div class="padding">
       <ion-list>
         <!--// Shipping Date-->
-        <ion-item class="item-icon-right no-border" ng-click="setShipDate()">
+        <ion-item class="item-icon-right " ng-click="Order.setShipDate()">
           <div>
             <span class="bold">Ship Date</span>
-            <span class="pull-right">{{vm.ship_date}}</span>
+            <span class="pull-right">{{Order.ship_date}}</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
 
         <!--Customer-->
-        <ion-item class="item-icon-right no-border" ng-click="customerModal.show()">
+        <ion-item class="item-icon-right " ng-click="Customer.view()">
           <div>
             <span class="bold">Customer</span>
-            <span class="pull-right">{{vm.customer.name}}</span>
+            <span class="pull-right">{{Customer.active.company}}</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
 
-        <ion-item class="no-border">
+        <ion-item class="">
           <div>
             <span class="bold">Sub-total</span>
-            <span class="pull-right">{{vm.order.subtotal | currency:"Php "}}</span>
+            <span class="pull-right">{{Order.total_amount | currency:"Php "}}</span>
           </div>
         </ion-item>
 
-        <ion-item class="no-border">
+        <ion-item class="">
           <div>
             <span class="bold">Tax</span>
             <span class="pull-right">{{0 | currency:"Php "}}</span>
           </div>
         </ion-item>
 
-        <ion-item class="no-border" ng-if="vm.order.discount !== null">
+        <ion-item class="" ng-if="vm.order.discount !== null">
           <div>
             <span class="bold">Discount</span>
-            <span class="pull-right">{{vm.order.discount.amount | currency:"Php "}}</span>
+            <span class="pull-right">{{Order.total_amount - Payments.charge() | currency:"Php "}}</span>
           </div>
         </ion-item>
 
-        <ion-item class="no-border">
+        <ion-item class="">
           <div>
             <span class="bold">Charge</span>
-            <span class="pull-right">{{vm.order.charge | currency:"Php "}}</span>
+            <span class="pull-right">{{Payments.charge() | currency:"Php "}}</span>
           </div>
         </ion-item>
 
@@ -73,7 +73,7 @@
 
       </ion-list>
 
-      <ion-checkbox class="no-border" ng-model="vm.checkout_options.printer" ng-change="checkPrinter()">
+      <ion-checkbox class="" ng-model="vm.checkout_options.printer" ng-change="checkPrinter()">
         Print
         <span class="pull-right balanced" ng-if="vm.printer_status">connected</span>
         <span class="pull-right assertive" ng-if="!vm.printer_status">disconnected</span>
@@ -81,8 +81,8 @@
 
       <!-- <ion-checkbox class="no-border" ng-model="vm.checkout_options.export">Export to CSV</ion-checkbox>   -->
       <!-- <button class="button button-block button-dark">Create Inventory</button> -->
-      <button class="button button-block button-positive" ng-click="checkout()">Proceed to Checkout</button>
-      <button class="button button-block button-assertive" ng-click="cancelSale()">Cancel Sale</button>
+      <button class="button button-block button-positive" ng-click="Order.checkout()">Proceed to Checkout</button>
+      <button class="button button-block button-assertive" ng-click="Order.reset();checkoutModal.hide()">Cancel Sale</button>
     </div>
   </ion-content>
 </ion-modal-view>

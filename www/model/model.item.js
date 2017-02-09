@@ -63,9 +63,9 @@
 				}));
 		}
 
-		function removeItem(id) {
-			return $q.when(_db.get(id).then(function(doc){
-				return _db.remove(doc);
+		function removeItem(item) {
+			return $q.when(_db.remove(item).then(function(result){
+				return result;
 			}).catch(function(error){
 				return error;
 			}));

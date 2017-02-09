@@ -1,0 +1,47 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <div class="buttons">
+      <button class="button" ng-click="paymentsModal.hide()">Close</button>
+    </div>
+    <h1 class="title">Payments Details</h1>
+    <div class="buttons">
+      <button class="button" ng-click="Payments.clear()">Clear</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <div class="padding">
+      <ion-list>
+        <ion-item>
+          <span class="bold">CASH</span>
+          <span class="pull-right">{{Payments.list.cash.amount | currency:"Php "}}</span>
+        </ion-item>
+
+        <ion-item>
+          <span class="bold">TERMS</span>
+          <span class="pull-right">{{Payments.list.terms.amount | currency:"Php "}}</span>
+        </ion-item>
+
+        <ion-item>
+          <span class="bold">SUB-TOTAL</span>
+          <span class="pull-right">{{Order.total_amount | currency:"Php "}}</span>
+        </ion-item>
+
+        <ion-item>
+          <span class="bold">DISCOUNT</span>
+          <span class="pull-right">{{Order.total_amount - Payments.charge() | currency:"Php "}}</span>
+        </ion-item>
+
+        <ion-item>
+          <span class="bold">CHARGE</span>
+          <span class="pull-right assertive">{{Payments.charge() | currency:"Php "}}</span>
+        </ion-item>
+
+        <ion-item>
+          <span class="bold">CHANGE</span>
+          <span class="pull-right balanced">{{Payments.total() - Payments.charge() | currency:"Php "}}</span>
+        </ion-item>
+      </ion-list>
+
+    </div>
+  </ion-content>
+</ion-modal-view>

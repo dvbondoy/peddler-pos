@@ -7,7 +7,7 @@
     </div>
     <h1 class="title">Set Quantity</h1>
     <div class="buttons">
-      <button class="button button-icon" ng-click="addToOrder(vm.item);quantityModal.hide()">
+      <button class="button button-icon" ng-click="Order.addItem(vm.item);quantityModal.hide()">
         <i class="icon ion-checkmark"></i>
       </button>
     </div>
@@ -21,8 +21,7 @@
             <i class="ion-minus"></i>
           </button>
         </div>
-        <div class="col-60 text-center text-2x padding" ng-click="inputQty()">
-          <!--{{ currentItem.quantity }}-->
+        <div class="col-60 text-center text-2x padding" ng-click="promptQuantity()">
           {{vm.quantity}}
         </div>
         <div class="col-20">

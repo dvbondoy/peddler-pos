@@ -14,7 +14,7 @@
     <!-- View order button-->
     <ion-nav-buttons side="right">
       <!-- <button class="button button-icon ion-ios-personadd" ng-click="customerModal.show();getCustomerList('zip');vm.areaFlag='zip'"></button> -->
-      <button class="button button-icon ion-android-done-all" ng-click="checkoutModal.show()" ng-disabled="vm.order.items.length == 0"></button>
+      <button class="button button-icon ion-android-done-all" ng-click="checkoutModal.show()" ng-disabled="Order.items.length == 0"></button>
       <!-- <button class="button button-icon ion-ios-download" ng-if="vm.isInventory == true" ng-click="saveInventory()"></button> -->
     </ion-nav-buttons>
   </ion-nav-bar>
@@ -22,10 +22,9 @@
   <ion-content class="home-content" scroll="true" has-subheader="false">
 
     <!--balance info-->
-    <div class="padding stable-bg">
+    <div class="padding stable-bg" ng-click="paymentsModal.show();">
       <div class="calm-bg padding text-center light text-2x">
-        <span ng-show="vm.order.subtotal == 0 || vm.order.subtotal == undefined">Charge</span>
-        {{ vm.order.subtotal | currency : "Php " }}
+        {{Payments.charge()|currency:"Php "}}
       </div>
     </div>
 
@@ -73,7 +72,7 @@
           <a ng-click="keyPressed(-1)" class="button button-block">C</a>
           <a ng-click="keyPressed(0)" class="button button-block">0</a>
           <!--<a ng-click="keyPressed(-2)" class="button button-block calm">+</a>-->
-          <a ng-click="addPayment()" class="button button-block calm" ng-disabled="vm.order.items.length == 0">+</a>
+          <a ng-click="Payments.add()" class="button button-block calm" ng-disabled="Order.items.length == 0">+</a>
         </div>
       </div>
     </div>
@@ -87,7 +86,7 @@
       </div>
 
       <ion-list>
-        <ion-item class="item-icon-left item-icon-right pos-item" ng-repeat="category in vm.categories" ng-show="vm.filterText == 'Items'" ng-click="openCategory(category.id)">
+        <ion-item class="item-icon-left item-icon-right pos-item" ng-repeat="category in Items.categories" ng-show="vm.filterText == 'Items'" ng-click="Items.openCategory(category.id)">
           <div class="icon">
             <img src="{{ item.image }}" alt="{{ item.name }}" ng-if="item.image"/>
             <div class="no-image center-align" ng-if="!item.image">
@@ -100,17 +99,17 @@
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
 
-        <ion-item class="item-icon-left pos-item" ng-repeat="item in vm.items" ng-show="vm.filterText == 'Items'" ng-click="selectItem(item)">
+        <ion-item class="item-icon-left pos-item" ng-repeat="item in Items.list" ng-show="vm.filterText == 'Items'" ng-click="Items.select(item)">
           {{ item.description }}
           <p>{{ item.price | currency:'Php ' }}</p>
         </ion-item>
 
-        <ion-item ng-show="vm.categories.length == 0 && vm.items.length == 0">
+        <ion-item ng-show="Items.categories.length == 0 && Items.list.length == 0">
           <span class="assertive">EMPTY</span>
         </ion-item> 
 
         <div ng-show="vm.showBack">
-          <button class="button button-block button-balanced" ng-click="prevCategory()">Back</button>
+          <button class="button button-block button-balanced" ng-click="Items.prevCategory()">Back</button>
         </div>
 
         <!--search form-->
@@ -122,20 +121,20 @@
           </label>
         </div> -->
   
-        <ion-item class="item-icon-left item-icon-right" ng-show="vm.filterText == 'Discounts'" ng-click="removeDiscount()">
+        <ion-item class="item-icon-left item-icon-right" ng-show="vm.filterText == 'Discounts'" ng-click="Discounts.remove()">
           <!-- <i class="icon ion-pricetag"></i> -->
           <i class="icon ion-alert-circled"></i>
           <div class="padding-left">
             None
-            <span class="pull-right" ng-show="vm.order.discount== null"><i class="icon ion-checkmark-circled"></i></span>
+            <span class="pull-right" ng-show="Discounts.active == null"><i class="icon ion-checkmark-circled"></i></span>
           </div>
         </ion-item>
 
-        <ion-item class="item-icon-left item-icon-right" ng-repeat="discount in vm.discounts" ng-click="addDiscount(discount)" ng-show="vm.filterText == 'Discounts'">
+        <ion-item class="item-icon-left item-icon-right" ng-repeat="discount in Discounts.list" ng-click="Discounts.add(discount)" ng-show="vm.filterText == 'Discounts'">
           <i class="icon ion-pricetag"></i>
           <div class="padding-left">
             {{ discount.description }}
-            <!-- <span class="pull-right" ng-show="vm.order.discount._id == discount.doc._id"><i class="icon ion-checkmark-circled"></i></span> -->
+            <span class="pull-right" ng-show="Discounts.active._id == discount._id"><i class="icon ion-checkmark-circled"></i></span>
           </div>
         </ion-item>
 
@@ -145,10 +144,10 @@
     <div class="tab-view" ng-show="vm.tab.active == 'order'">
       <div class="">
         <ion-list>
-          <ion-item ng-if="vm.order.items.length == 0">
+          <ion-item ng-if="Order.items.length == 0">
             <div class="assertive">No item selected yet</div>
           </ion-item>
-          <ion-item ng-repeat="item in vm.order.items" ng-click="removeToOrder(item)">
+          <ion-item ng-repeat="item in Order.items" ng-click="Order.remove(item)">
             <div>
               {{item.description}}
               <span class="pull-right">{{item.quantity}}@{{item.price | currency : "Php "}}</span>

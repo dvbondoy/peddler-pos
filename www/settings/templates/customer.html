@@ -1,13 +1,18 @@
-<ion-view view-title="Customer Manager">
+<ion-view view-title="Customer Manager" ng-controller="SettingsController as vm">
 	<ion-nav-bar class="bar-stable" align-title="center">
-		<ion-nav-back-button class="button-clear"></ion-nav-back-button>
+		<ion-nav-back-button class="button-clear">Back</ion-nav-back-button>
 		<ion-nav-buttons side="right">
-			<button class="button button-icon ion-plus"></button>
+			<button class="button button-icon ion-plus" ng-click="customerModal.show();vm.customer = {}"></button>
 		</ion-nav-buttons>
 	</ion-nav-bar>
 	<ion-content has-subheader="false">
-		<div class="padding">
-			
-		</div>
+		<!-- <div class="padding"> -->
+		<ion-list>
+			<ion-item ng-repeat="customer in Customer.list" ng-click="vm.customer = customer;customerModal.show()">
+				{{customer.company}}
+				<p>{{customer.name}}</p>
+			</ion-item>
+		</ion-list>
+		<!-- </div> -->
 	</ion-content>
 </ion-view>

@@ -16,43 +16,19 @@
   </ion-header-bar>
   <ion-content>
     <!--search form-->
-    <!--<div class="item-input-inset" ng-show="vm.customerAddr.address">
+    <div class="item-input-inset">
       <label class="item-input-wrapper">
         <i class="icon ion-ios-search placeholder-icon"></i>
         <input type="search" placeholder="Search" ng-model="search">
       </label>
-    </div>-->
+    </div>
 
     <div class="padding">
       <ion-list>
-        <!--<button class="button button-block" ng-click="openDatePicker()">Ship Date</button>-->
-        <!--<ion-item ng-click="newInventory();customerModal.hide()">
-          <span class="bold">NEW INVENTORY</span>
-        </ion-item>-->
-        <!--<ion-item>-->
-<!--           <h4 class="gray">
-            Ship Date:
-            <span class="pull-right">{{vm.ship_by}}</span>
-          </h4>
- -->        <!--</ion-item>-->
-        <ion-item ng-if="vm.areaFlag == 'zip'" ng-click="getCustomerList('city',zip);vm.areaFlag = 'city'" ng-repeat="zip in vm._customers">
-          {{zip.key}}
+        <ion-item ng-repeat="customer in Customer.list | filter : search" ng-click="Customer.select(customer)">
+          {{customer.company}}
+          <p>{{customer.name}}</p>
         </ion-item>
-        <ion-item ng-if="vm.areaFlag == 'city'" ng-click="getCustomerList('address',vm.zip,city);vm.areaFlag = 'address'" ng-repeat="city in vm._customers">
-          {{city}}
-        </ion-item>
-        <ion-item ng-if="vm.areaFlag == 'address'" ng-click="getCustomerList('customer',vm.zip,vm.city,address);vm.areaFlag = 'customer'" ng-repeat="address in vm._customers">
-          {{address}}
-        </ion-item>
-        <ion-item ng-if="vm.areaFlag == 'customer'" ng-repeat="customer in vm._customers" ng-click="assignCustomer(customer)">
-          {{customer.name}}
-        </ion-item>
-        <!--<ion-item ng-repeat="customer in vm.customers | filter : search" ng-click="vm.customer = customer;customerModal.hide();vm.isInventory=false">
-          <div>
-            <h1 class="gray">{{customer.company}}</h1>
-            <span>{{customer.contact_name}}</span>
-          </div>
-        </ion-item>-->
       </ion-list>
     </div>
 
