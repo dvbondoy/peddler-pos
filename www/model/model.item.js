@@ -6,8 +6,10 @@
 
 	Item.$inject = ['$q'];
 	function Item($q) {
+
+		checkDdocs();
+
 		return {
-			initDB:initDB,
 			addCategory:addCategory,
 			getCategories:getCategories,
 			addItem:addItem,
@@ -15,11 +17,6 @@
 			getItemsByCategory:getItemsByCategory,
 			removeItem:removeItem
 		};
-
-		function initDB() {
-			// _db = new PouchDB('peddlerpos',{adapter:'websql'});
-			checkDdocs();
-		}
 
 		function addCategory(category) {
 			return $q.when(_db.put(category).catch(function(error){
@@ -71,14 +68,6 @@
 			}));
 		}
 
-		// function updateItem(id) {
-		// 	return $q.when(_db.get(id).then(function(doc){
-		// 		return _db.put()
-		// 	}).catch(function(error){
-		// 		return error;
-		// 	}));
-		// }
-
 		function checkDdocs(update) {
 			if(update){
 				createDdocs(update);
@@ -120,9 +109,7 @@
 					ddocs._rev = docs._rev;
 
 					_db.put(ddocs).then(function(result){
-						// console.log('updated');
-						// console.log(result);
-						
+						console.log(result);
 					});
 				}));
 

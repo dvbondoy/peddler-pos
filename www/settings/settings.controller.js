@@ -14,19 +14,25 @@
         category:null,
         categories:[],
         getCategories:function(category){
+          console.log('getCategories');
+          console.log(category);
           var items = this;
 
           category == undefined ? category = items.category : category;
 
           category !== null ? vm.showBack = true : vm.showBack = false;
 
+          console.log(category);
+
           // get categories
           Item.getCategories(category).then(function(result){
+            console.log(JSON.stringify(result));
             items.categories = result;
           });
 
           // get items inside this category
           Item.getItemsByCategory(category).then(function(result){
+            console.log(JSON.stringify(result));
             items.list = result;
           });
         },
@@ -49,6 +55,7 @@
           };
 
           Item.addCategory(data).then(function(result){
+            console.log(JSON.stringify(result));
             if(result.error){
               alert(result.message);
             }
@@ -137,13 +144,6 @@
             discount.list = result;
             vm.discount_count = result.length;
           });
-        },
-        view:function(disc){
-          var discount = this;
-
-          vm.discount = disc;
-
-          
         },
         add:function(disc){
           var discount = this;
@@ -337,10 +337,10 @@
       });
       // end of modals
 
-      $scope.Customer.getAll();
+      $scope.Items.getCategories(null);
+      $scope.Items.byCategory(null);
       $scope.Discount.getAll();
-      $scope.Items.byCategory();
-      $scope.Items.getCategories();
+      $scope.Customer.getAll();
 
       $scope.$on('$destroy',function(){
         $scope.discountModal.remove();

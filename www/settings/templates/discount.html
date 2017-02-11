@@ -2,13 +2,13 @@
 	<ion-nav-bar class="bar-stable" align-title="center">
 		<ion-nav-back-button class="button-clear">Back</ion-nav-back-button>
 		<ion-nav-buttons side="right">
-			<button class="button button-icon ion-plus" ng-click="vm.discount = {};Discount.view()"></button>
+			<button class="button button-icon ion-plus" ng-click="vm.discount = {};discountModal.show()"></button>
 		</ion-nav-buttons>
 	</ion-nav-bar>
 	<ion-content has-subheader="false">
 		<div class="padding">
 			<ion-list>
-				<ion-item ng-repeat="discount in Discount.list" ng-click="Discount.view(discount)">
+				<ion-item ng-repeat="discount in Discount.list" ng-click="vm.discount = discount;discountModal.show()">
 					{{ discount.description }}
 					<span class="pull-right">{{ discount.percentage * 100 | number:2 }}%</span>
 				</ion-item>

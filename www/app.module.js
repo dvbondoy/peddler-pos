@@ -12,10 +12,6 @@
     'app.model',
     'app.settings',
     'app.sales'
-    // 'app.database',
-    // 'app.item',
-    // 'app.product',
-    // 'app.people',
     // 'app.report'
   ]);
 })();

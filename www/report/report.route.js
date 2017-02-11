@@ -18,17 +18,10 @@
         }
       },
       {
-        state: 'app.daily_activity',
+        state: 'app.sales_report',
         config: {
-          url: '/daily_activity',
-          templateUrl: 'report/templates/daily-activity.html'
-        }
-      },
-      {
-        state: 'app.active_inventory',
-        config: {
-          url: '/active_inventory',
-          templateUrl: 'report/templates/active-inventory.html'
+          url: '/sales_report',
+          templateUrl: 'report/templates/sales_report.html'
         }
       }
     ];
