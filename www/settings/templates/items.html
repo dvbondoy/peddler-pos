@@ -2,6 +2,7 @@
 	<ion-nav-bar class="bar-stable" align-title="center">
 		<ion-nav-back-button class="button-clear">Back</ion-nav-back-button>
 		<ion-nav-buttons side="right">
+			<button class="button button-icon ion-trash-b" ng-click="Items.removeCategory()"></button>
 		</ion-nav-buttons>
 	</ion-nav-bar>
 	<ion-header-bar class="bar bar-subheader">
@@ -32,8 +33,9 @@
 				</ion-item>
 			</ion-list>
 		</div>
+		<button class="button button-block button-balanced ng-hide" ng-click="Items.back()" ng-show="vm.showBack">Back</button>
+		<!--<button class="button button-block button-assertive" ng-click="Items.removeCategory()">Delete</button>-->
 	</ion-content>
 	<ion-footer-bar align-title="left" class="badge-assertive">
-		<button class="button button-block button-balanced ng-hide" ng-click="Items.back()" ng-show="vm.showBack">Back</button>
 	</ion-footer-bar>
 </ion-view>

@@ -15,7 +15,7 @@
 
 		function add(customer) {
 			customer._id = 'customer/'+customer.company;
-      customer.type = 'customer';
+      		customer.type = 'customer';
       
 			return $q.when(_db.put(customer).then(function(result){
 				return result;

@@ -12,6 +12,7 @@
 		return {
 			addCategory:addCategory,
 			getCategories:getCategories,
+			removeCategory:removeCategory,
 			addItem:addItem,
 			getItem:getItem,
 			getItemsByCategory:getItemsByCategory,
@@ -31,6 +32,16 @@
 				}).catch(function(error){
 					return error;
 				}));
+		}
+
+		function removeCategory(category) {
+			return $q.when(_db.get(category).then(function(doc){
+				return _db.remove(doc).then(function(result){
+					return result;
+				});
+			}).catch(function(error){
+				return error;
+			}));
 		}
 
 		function addItem(item) {

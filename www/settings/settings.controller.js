@@ -73,6 +73,27 @@
 
           items.getCategories(items.category);
         },
+        removeCategory:function(category){
+          var items = this;
+
+          if(!confirm('You are about to delete this category and all its items. Continue?')){
+            return 0;
+          }
+
+          category == undefined ? category = items.category : category;
+
+          console.log(category);
+
+          Item.removeCategory(category).then(function(result){
+            if(result.error){
+              alert(result.message);
+              return 0;
+            }
+
+            items.back();
+            alert('Deleted');
+          });
+        },
         addItem:function(){
           var items = this;
 
