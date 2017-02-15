@@ -14,14 +14,7 @@
         state: 'app.report',
         config: {
           url: '/report',
-          templateUrl: 'report/templates/report.html'
-        }
-      },
-      {
-        state: 'app.sales_report',
-        config: {
-          url: '/sales_report',
-          templateUrl: 'report/templates/sales_report.html'
+          templateUrl: 'reports/templates/report.html'
         }
       }
     ];

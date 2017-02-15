@@ -11,7 +11,7 @@
     'app.pouch',
     'app.model',
     'app.settings',
-    'app.sales'
-    // 'app.report'
+    'app.sales',
+    'app.report'
   ]);
 })();

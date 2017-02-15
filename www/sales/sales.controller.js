@@ -163,10 +163,15 @@
           var discounts = $scope.Discounts;
           var customer = $scope.Customer;
 
+          var date = moment().format('YYYY-MM-DD');
+          var time = moment().format('kk:mm:ss');
+
           var sale = {
             type : 'sale',
-            _id : 'sale/'+Date.now(),
+            _id : 'sale/'+date+'/'+time,
             ship_date:order.ship_date,
+            date:date,
+            time:time,
             subtotal:order.total_amount,
             charge:payments.charge(),
             discount:discounts.active,
@@ -277,7 +282,7 @@
           var hideSheet = $ionicActionSheet.show({
             buttons: menu,
             cancelText: 'Cancel',
-            canel:function(){
+            cancel:function(){
 
             },
             buttonClicked:function(index){

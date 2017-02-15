@@ -1,0 +1,33 @@
+<ion-view view-title="Sales Reports" ng-controller="ReportController as vm">
+  <ion-nav-bar class="bar-stable bar-no-border" align-title="center">
+    <!-- Back button -->
+    <ion-nav-back-button>
+      Back
+    </ion-nav-back-button>
+
+    <!-- Burger button -->
+    <ion-nav-buttons side="left">
+      <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+      </button>
+    </ion-nav-buttons>
+
+    <!-- View order button-->
+    <ion-nav-buttons side="right">
+      <button class="button button-icon ion-calendar"></button>
+    </ion-nav-buttons>
+  </ion-nav-bar>
+
+  <ion-content>
+    <div class="padding">
+      <h2>Sales</h2>
+      <ion-list>
+        <ion-item ng-repeat="sale in Sales.list">
+          <span class="gray">Trans ID: {{sale._id}}</span>
+          <p>Time: {{sale.time}}</p>
+          <p>Charge: {{sale.charge | currency:"Php "}}</p>
+          <p>Items: {{sale.items.length}}</p>
+        </ion-item>
+      </ion-list>
+    </div>
+  </ion-content>
+</ion-view>

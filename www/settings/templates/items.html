@@ -2,7 +2,7 @@
 	<ion-nav-bar class="bar-stable" align-title="center">
 		<ion-nav-back-button class="button-clear">Back</ion-nav-back-button>
 		<ion-nav-buttons side="right">
-			<button class="button button-icon ion-trash-b" ng-click="Items.removeCategory()"></button>
+			<button class="button button-icon ion-trash-b" ng-click="Items.removeCategory()" ng-show="Items.category !== null"></button>
 		</ion-nav-buttons>
 	</ion-nav-bar>
 	<ion-header-bar class="bar bar-subheader">
