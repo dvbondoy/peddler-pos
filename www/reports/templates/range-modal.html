@@ -1,0 +1,26 @@
+<ion-modal-view>
+    <ion-header-bar>
+        <div class="buttons">
+            <button class="button button-icon ion-close" ng-click="rangeModal.hide()"></button>
+        </div>
+        <h1 class="title">Set date range</h1>
+        <div class="buttons">
+            <button class="button button-icon ion-checkmark" ng-click="Sales.range.sales();rangeModal.hide()"></button>
+        </div>
+    </ion-header-bar>
+
+    <ion-content>
+        <div class="padding">
+            <div class="list">
+                <label class="item item-input">
+                    <span class="input-label">From</span>
+                    <input type="text" ng-click="Sales.range.from()" ng-model="vm.from">
+                </label>
+                <label class="item item-input">
+                    <span class="input-label">To</span>
+                    <input type="text" ng-click="Sales.range.to()" ng-model="vm.to">
+                </label>
+            </div>
+        </div>
+    </ion-content>
+</ion-modal-view>

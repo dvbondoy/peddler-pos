@@ -40,7 +40,7 @@
         }
 
         function dateRange(from_date, to_date) {
-            return $q.when(_db.allDocs({include_docs:true,startkey:moment(from_date).format('YYYY-MM-DD'),endkey:moment(to_date).format('YYYY-MM-DD')+'\uffff'})
+            return $q.when(_db.allDocs({include_docs:true,startkey:'sale/'+moment(from_date).format('YYYY-MM-DD').toString(),endkey:'sale/'+moment(to_date).format('YYYY-MM-DD')+'\uffff'})
             .then(function(docs){
                 return docs.rows.map(function(row){
                     return row.doc;
