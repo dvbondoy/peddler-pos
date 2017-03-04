@@ -1,0 +1,14 @@
+<ion-popover-view>
+    <ion-header-bar>
+        <h1 class="title">My Popover Title</h1>
+    </ion-header-bar>
+    <ion-content>
+        <div class="list">
+            <a href="#" class="item" ng-click="Items.addCategory();itemsPopover.hide()">New Category</a>
+            <a href="#" class="item" ng-click="vm.item = {};itemModal.show();itemsPopover.hide()">New Item</a>
+            <a href="#" class="item" ng-click="Items.import();itemsPopover.hide()">Import List</a>
+            <hr>
+            <a href="#" class="item" ng-click="Items.removeCategory()">Delete Category</a>
+        </div>
+    </ion-content>
+</ion-popover-view>

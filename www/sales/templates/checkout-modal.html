@@ -73,10 +73,10 @@
 
       </ion-list>
 
-      <ion-checkbox class="" ng-model="vm.checkout_options.printer" ng-change="checkPrinter()">
+      <ion-checkbox class="" ng-model="Printer.auto_print">
         Print
-        <span class="pull-right balanced" ng-if="vm.printer_status">connected</span>
-        <span class="pull-right assertive" ng-if="!vm.printer_status">disconnected</span>
+        <!--<span class="pull-right balanced" ng-if="vm.printer_status">connected</span>-->
+        <span class="pull-right assertive">{{Printer.status}}</span>
       </ion-checkbox>
 
       <!-- <ion-checkbox class="no-border" ng-model="vm.checkout_options.export">Export to CSV</ion-checkbox>   -->

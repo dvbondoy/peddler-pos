@@ -14,11 +14,25 @@
 		};
 
 		function addPrinter(printer) {
-			printer._id = '_local/printer';
-
-			return $q.when(_db.put(printer).then(function(result){
-				return result;
+			return $q.when(_db.get('_local/printer').then(function(result){
+				result.printer = printer.printer;
+				result.auto_print = printer.auto_print;
+				
+				return $q.when(_db.put(result).then(function(result){
+					return result;
+				}).catch(function(error){
+					return error;
+				}));
 			}).catch(function(error){
+				if(error.message == 'missing'){
+					printer._id = '_local/printer';
+					return $q.when(_db.put(printer).then(function(result){
+						return result;
+					}).catch(function(error){
+						return error;
+					}));
+				}
+
 				return error;
 			}));
 		}

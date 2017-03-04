@@ -1,17 +1,18 @@
-<ion-view view-title="Items|Categories" ng-controller="SettingsController as vm">
+<ion-view view-title="Items and Categories" ng-controller="SettingsController as vm">
 	<ion-nav-bar class="bar-stable" align-title="center">
 		<ion-nav-back-button class="button-clear">Back</ion-nav-back-button>
 		<ion-nav-buttons side="right">
-			<button class="button button-icon ion-trash-b" ng-click="Items.removeCategory()" ng-show="Items.category !== null"></button>
+			<!--<button class="button button-icon ion-trash-b" ng-click="Items.removeCategory()" ng-show="Items.category !== null"></button>-->
+			<button class="button button-icon ion-android-more-vertical" ng-click="itemsPopover.show($event)"></button>
 		</ion-nav-buttons>
 	</ion-nav-bar>
-	<ion-header-bar class="bar bar-subheader">
+	<!--<ion-header-bar class="bar bar-subheader">
 		<div class="button-bar padding-bottom">
 			<button class="button icon-left ion-plus" ng-click="Items.addCategory()">Category</button>
 			<button class="button icon-left ion-plus" ng-click="vm.item = {};itemModal.show()">Item</button>
 			<button class="button icon-left ion-android-download">Import</button>
 		</div>
-	</ion-header-bar>
+	</ion-header-bar>-->
 	<ion-content has-subheader="true">
 		<div class="padding">
 			<ion-list>
@@ -32,8 +33,15 @@
 					<p>{{item.price | currency:'Php '}}</p>
 				</ion-item>
 			</ion-list>
+
+			<br>
+			<button class="button icon-left ion-chevron-left button-clear button-dark" ng-show="vm.showBack" ng-click="Items.back()">Previous</button>
+			<!--<div class="button-bar" ng-show="vm.showBack">
+				<button class="button" ng-click="Items.back()">Previous</button>
+				<button class="button button-assertive" ng-click="Items.removeCategory()">Delete</button>
+			</div>-->
 		</div>
-		<button class="button button-block button-balanced ng-hide" ng-click="Items.back()" ng-show="vm.showBack">Back</button>
+		<!--<button class="button button-block button-balanced ng-hide" ng-click="Items.back()" ng-show="vm.showBack">Back</button>-->
 		<!--<button class="button button-block button-assertive" ng-click="Items.removeCategory()">Delete</button>-->
 	</ion-content>
 	<ion-footer-bar align-title="left" class="badge-assertive">

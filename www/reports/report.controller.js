@@ -9,17 +9,27 @@
   function ReportController($scope,Report,$ionicActionSheet,$ionicModal,ionicDatePicker) {
     var vm = this;
     
-    // Report.salesToday().then(function(result){
-    //   console.log(result);
-    // });
-
     $scope.Sales = {
       list:[],
+      summary:function(){
+        var sales = this;
+
+        vm.sales_summary = {
+          total_amount : 0,
+          total_count:sales.list.length
+        };
+
+        sales.list.forEach(function(sale,index){
+          vm.sales_summary.total_amount += sale.charge;
+        });
+
+        console.log(vm.sales_summary);
+      },
       setDate:function(){
         var sales = this;
 
         var menu = [
-          {text:'Today'},{text:'Yesteday'},{text:'Date Range'}
+          {text:'Today'},{text:'Yesterday'},{text:'Date Range'}
         ];
 
         var hideSheet = $ionicActionSheet.show({
@@ -34,7 +44,7 @@
                 sales.today();
               break;
               case 1:
-                sales.yesteday();
+                sales.yesterday();
               break;
               case 2:
                 $scope.rangeModal.show();
@@ -48,17 +58,19 @@
         var sales = this;
 
         Report.salesToday().then(function(result){
-          console.log('report.controller:46');
-          console.log(result);
           sales.list = result;
+          sales.summary();
         });
+        vm.date = 'Today';
       },
-      yesteday:function(){
+      yesterday:function(){
         var sales = this;
 
         Report.salesYesterday().then(function(result){
           sales.list = result;
+          sales.summary();
         });
+        vm.date = 'Yesterday';
       },
       range:{
         from:function(){
@@ -77,9 +89,13 @@
         },
         sales:function(){
           Report.dateRange(vm.from, vm.to).then(function(result){
-            console.log('report.controller:82');
-            console.log(result)
+            // console.log('report.controller:82');
+            // console.log(result)
             $scope.Sales.list = result;
+
+            vm.date = vm.from + " to " + vm.to;
+            
+            $scope.Sales.summary();
           });
         }
       }

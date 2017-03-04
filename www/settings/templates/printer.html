@@ -8,11 +8,29 @@
     <div class="padding">
       <ion-list>
         <ion-item class="item-icon-right no-border" ng-click="Printer.scan()">
-          <div ng-click="scanPrinter()">
+          <div>
             <span class="bold">Printer</span>
             <span class="pull-right">{{Printer.device}}</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-icon-right no-border">
+          <div>
+            <span class="bold">Status</span>
+            <!--<span class="pull-right assertive" ng-if="Printer.status == 'offline'">{{Printer.status}}</span>-->
+            <!--<span class="pull-right balanced" ng-if="Printer.status == 'online'">{{Printer.status}}</span>-->
+            <span class="pull-right">{{vm.printer_status}}</span>
+          </div>
+          <i class="icon ion-ios-arrow-right"></i>
+        </ion-item>
+        <ion-item class="item-toggle no-border">
+          <span class="bold">Print receipt</span>
+          <label class="toggle">
+            <input type="checkbox" ng-model="vm.auto_print" ng-change="Printer.toggleAutoPrint()">
+            <div class="track">
+              <div class="handle"></div>
+            </div>
+          </label>
         </ion-item>
       </ion-list>
       <button class="button button-block button-dark" ng-click="Printer.check()">Check Connection</button>

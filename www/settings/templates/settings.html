@@ -1,4 +1,12 @@
 <ion-view view-title="Settings" ng-controller="SettingsController as vm">
+  <ion-nav-bar class="bar-stable bar-no-border" align-title="center">
+    <!-- Burger button -->
+    <ion-nav-buttons side="left">
+      <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+      </button>
+    </ion-nav-buttons>
+  </ion-nav-bar>
+  
   <ion-content class="">
     <div class="padding">
       <h4 class="gray padding-left">
@@ -7,7 +15,7 @@
       <ion-list>
         <ion-item class="item-icon-right no-border" ui-sref="app.category">
           <div>
-            <span class="bold">Manage Items/Categories</span>
+            <span class="bold">Manage Items and Categories</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>
@@ -24,19 +32,6 @@
         SALES OPTIONS
       </h4>
       <ion-list>
-        <!-- <ion-item class="item-icon-right no-border">
-          <div>
-            <span class="bold">Products & Categories</span>
-          </div>
-          <i class="icon ion-ios-arrow-right"></i>
-        </ion-item>
-        <ion-item class="item-icon-right no-border">
-          <div>
-            <span class="bold">Customers</span>
-            <span class="pull-right">12</span>
-          </div>
-          <i class="icon ion-ios-arrow-right"></i>
-        </ion-item> -->
         <ion-item class="item-icon-right no-border" ui-sref="app.discount">
           <div>
             <span class="bold">Discounts</span>
@@ -58,7 +53,7 @@
         <ion-item class="item-toggle no-border">
           <span class="bold">Print receipt</span>
           <label class="toggle">
-            <input type="checkbox" ng-model="vm.checkout_options.printer" ng-change="printerOptions()">
+            <input type="checkbox" ng-model="vm.auto_print" ng-change="Printer.toggleAutoPrint()">
             <div class="track">
               <div class="handle"></div>
             </div>
@@ -89,7 +84,7 @@
         <ion-item class="item-icon-right no-border" ui-sref="app.printer">
           <div>
             <span class="bold">Printers</span>
-            <span class="pull-right">{{vm.printer}}</span>
+            <span class="pull-right">{{Printer.device}}</span>
           </div>
           <i class="icon ion-ios-arrow-right"></i>
         </ion-item>

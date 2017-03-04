@@ -27,7 +27,7 @@
         }
 
         function salesYesterday() {
-            var yesterdate = moment().subtract(1, 'days').format('YYYY-MMM-DD');
+            var yesterdate = moment().subtract(1, 'days').format('YYYY-MM-DD');
 
             return $q.when(_db.allDocs({include_docs:true,startkey:'sale/'+yesterdate,endkey:'sale/'+yesterdate+'uffff'})
             .then(function(docs){

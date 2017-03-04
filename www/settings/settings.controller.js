@@ -5,9 +5,15 @@
     .module('app.settings')
     .controller('SettingsController', SettingsController);
 
-    SettingsController.$inject = ['$scope', 'PouchHelper', 'Discount', 'Customer', '$ionicModal', '$ionicLoading','Local','Item','Uom'];
-    function SettingsController($scope,PouchHelper,Discount,Customer,$ionicModal,$ionicLoading,Local,Item,Uom) {
+    SettingsController.$inject = ['$scope', 'PouchHelper', 'Discount', 'Customer', '$ionicModal', '$ionicLoading','Local','Item','Uom','$ionicPopover','$ionicPopup'];
+    function SettingsController($scope,PouchHelper,Discount,Customer,$ionicModal,$ionicLoading,Local,Item,Uom,$ionicPopover,$ionicPopup) {
       var vm = this;
+
+      Local.getPrinter().then(function(result){
+        vm.auto_print = result.auto_print;
+        console.log(vm.auto_print);
+        console.log(JSON.stringify(result));
+      });
 
       $scope.Items = {
         list:[],
@@ -39,29 +45,71 @@
         addCategory:function(){
           var items = this;
 
-          var category = prompt("Enter new category");
-        
-          if(category == undefined || category == ""){
-            return 0;
-          }
+          $scope.data = {};
 
-          var id = items.category == null ? 'category/'+items.category+'/'+category : items.category+'/'+category;
+          // var category = prompt("Enter new category");
+          $ionicPopup.show({
+            template:'<input type="text" ng-model="data.category" placeholder="Category">',
+            title:'New Category',
+            scope:$scope,
+            buttons:[
+              {text:'Cancel'},
+              {
+                text:'<b>Save</b>',
+                type:'button-positive',
+                onTap:function(e){
+                  return $scope.data.category;
+                }
+              }
+            ]
+          }).then(function(res){
+            console.log(res);
 
-          var data = {
-            _id:id,
-            category:category,
-            parent_category:items.category,
-            type:'category'
-          };
-
-          Item.addCategory(data).then(function(result){
-            console.log(JSON.stringify(result));
-            if(result.error){
-              alert(result.message);
+            if(res == undefined){
+              return 0;
             }
 
-            items.getCategories();
+            var id = items.category == null ? 'category/'+items.category+'/'+res : items.category+'/'+res;
+
+            var data = {
+              _id:id,
+              category:res,
+              parent_category:items.category,
+              type:'category'
+            };
+
+            Item.addCategory(data).then(function(result){
+              console.log(JSON.stringify(result));
+              if(result.error){
+                alert(result.message);
+              }
+
+              items.getCategories();
+            });
+            
           });
+        
+          // if(category == undefined || category == ""){
+          //   return 0;
+          // }
+
+          // var id = items.category == null ? 'category/'+items.category+'/'+category : items.category+'/'+category;
+
+          // var data = {
+          //   _id:id,
+          //   category:category,
+          //   parent_category:items.category,
+          //   type:'category'
+          // };
+
+          // Item.addCategory(data).then(function(result){
+          //   console.log(JSON.stringify(result));
+          //   if(result.error){
+          //     alert(result.message);
+          //   }
+
+          //   items.getCategories();
+          // });
         },
         openCategory:function(category){
           var items = this;
@@ -76,23 +124,45 @@
         removeCategory:function(category){
           var items = this;
 
-          if(!confirm('You are about to delete this category and all its items. Continue?')){
-            return 0;
-          }
+          // if(!confirm('You are about to delete this category and all its items. Continue?')){
+          //   return 0;
+          // }
+          $ionicPopup.confirm({
+            title:'Corfirm DELETE',
+            template:'Delete category? All items inside will be deleted too.'
+          }).then(function(res){
+            if(res){
+              category == undefined ? category = items.category : category;
+              
+              Item.removeCategory(category).then(function(result){
+                if(result.error){
+                  alert(result.message);
+                  return 0;
+                }
 
-          category == undefined ? category = items.category : category;
-
-          console.log(category);
-
-          Item.removeCategory(category).then(function(result){
-            if(result.error){
-              alert(result.message);
-              return 0;
+                items.back();
+                // alert('Deleted');
+                $ionicPopup.alert({
+                  title:'Done',
+                  template:category+' Deleted!'
+                });
+              });
             }
-
-            items.back();
-            alert('Deleted');
           });
+
+          // category == undefined ? category = items.category : category;
+
+          // console.log(category);
+
+          // Item.removeCategory(category).then(function(result){
+          //   if(result.error){
+          //     alert(result.message);
+          //     return 0;
+          //   }
+
+          //   items.back();
+          //   alert('Deleted');
+          // });
         },
         addItem:function(){
           var items = this;
@@ -123,17 +193,33 @@
 
           console.log(i);
 
-          if(confirm('Delete '+i.description+'?')){
-            Item.removeItem(i).then(function(result){
-              if(result.error){
-                alert(result.message);
-              }
+          $ionicPopup.confirm({
+            title:'Confirm Delete',
+            template:'Are you sure you want to DELETE?'
+          }).then(function(res){
+            if(res){
+              Item.removeItem(i).then(function(result){
+                if(result.error){
+                  alert(result.message);
+                }
 
-              $scope.itemModal.hide();
+                $scope.itemModal.hide();
 
-              items.getCategories();
-            });
-          }
+                items.getCategories();
+              });
+            }
+          });
+          // if(confirm('Delete '+i.description+'?')){
+          //   Item.removeItem(i).then(function(result){
+          //     if(result.error){
+          //       alert(result.message);
+          //     }
+
+          //     $scope.itemModal.hide();
+
+          //     items.getCategories();
+          //   });
+          // }
         },
         byCategory:function(category){
           var items = this;
@@ -152,6 +238,9 @@
           if(items.category == 'category/null'){items.category = null;}
 
           items.getCategories(items.category);
+        },
+        import:function(){
+          alert('Not yet implemented.');
         }
       };
 
@@ -192,6 +281,18 @@
               }
             });
           }
+        },
+        edit:function(disc){
+          var discount = this;
+
+          console.log(disc);
+
+          vm.discount = {};
+
+          vm.discount.description = disc.description;
+          vm.discount.percentage = disc.percentage*100;
+
+          $scope.discountModal.show();
         }
       };
 
@@ -248,10 +349,27 @@
         status:'offline',
         device:null,
         devices:[],
+        auto_print:false,
+        get:function(){
+          var printer = this;
+
+          Local.getPrinter().then(function(result){
+            if(result.error){
+              console.log(result);
+              return 0;
+            }
+
+            printer.device = result.printer;
+
+            printer.auto_print = result.auto_print;
+            
+            console.log(result);
+          });
+        },
         check:function(){
           var printer = this;
 
-          $ionicLoading.show({template:'Connecting...'});
+          $ionicLoading.show({template:'Searching...'});
 
           Local.getPrinter().then(function(device){
             if(device.error){
@@ -259,14 +377,20 @@
               return 0;
             }
 
-            printer.device = device;
+            printer.device = device.printer;
+
+            console.log('SettingsController:279');
+            console.log(JSON.stringify(device));
             
             BTPrinter.connect(function(success){
               printer.status = 'online';
-              alert(printer.status);
+              // alert(printer.status);
+              vm.printer_status = 'online';
             },function(error){
               alert(error);
-            },device);
+              printer.status = 'offline';
+              vm.printer_status = 'offline';
+            },printer.device);
 
             BTPrinter.disconnect();
             $ionicLoading.hide();
@@ -278,15 +402,16 @@
 
           var data = {
             printer:print,
+            auto_print:false
           };
 
           Local.addPrinter(data).then(function(result){
-            if(reslt.error){
-              alert(error.message);
+            if(result.error){
+              alert(result.message);
+              return 0;
             }
 
-            alert('Printer is now set to '+result.printer);
-            printer.device = result.printer
+            printer.device = data.printer;
           });
         },
         scan:function(){
@@ -302,8 +427,81 @@
           },function(error){
             alert(error);
           });
+        },
+        toggleAutoPrint:function(){
+          var printer = this;
+
+          Local.getPrinter().then(function(result){
+            if(result.error){
+              return 0;
+            }
+
+            result.auto_print = vm.auto_print;
+            Local.addPrinter(result).then(function(result){
+              console.log(JSON.stringify(result));
+            });
+          });
+        },
+        test:function(){
+          var printer = this;
+
+          if(printer.device == null){
+            alert('Set printer first');
+            return 0;
+          }
+
+          var items = [
+            {_id:'item001',quantity:'2',price:'12',amount:'24'},
+            {_id:'item002',quantity:'1',price:'10',amount:'10'}
+          ];
+
+          BTPrinter.connect(function(success){
+            //center align
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
+            BTPrinter.printText(function(){},function(){},"Sari2x Store\n");
+            BTPrinter.printText(function(){},function(){},"123 St. Somewhere\n\n\n");
+            //left align
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 00");
+            BTPrinter.printText(function(){},function(){},"Customer: "+"XYZ Co\n");
+            BTPrinter.printText(function(){},function(){},"Date: "+moment().format("YYYY-MM-DD")+"\n");
+            BTPrinter.printText(function(){},function(){},"Time: "+moment().format("kk:mm:ss")+"\n\n");
+            //print obj
+            items.forEach(function(value){
+              BTPrinter.printText(function(){},function(){},
+                value.quantity+" "+
+                value._id.slice(6)+
+                "      @"+
+                value.price+
+                "      "+
+                value.amount+
+                "\n");
+            });
+
+            //center
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
+
+            BTPrinter.printText(function(){},function(){},"-------------------------\n");
+
+            //left
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 00");
+            BTPrinter.printText(function(){},function(){},"SUB-TOTAL        "+34.00+"\n");
+            BTPrinter.printText(function(){},function(){},"DISCOUNT         "+0.00+"\n");
+            BTPrinter.printText(function(){},function(){},"TOTAL            "+34.00+"\n\n\n");
+
+            //center again
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
+            BTPrinter.printText(function(){},function(){},"Thank You!");
+
+            //feed 3 lines
+            BTPrinter.printPOSCommand(function(){},function(){},"1B 64 03");
+
+            BTPrinter.disconnect();
+
+          },function(error){
+            console.log(error);
+          },printer.device);
         }
-      }
+      };
 
       $scope.Uom = {
         list:[],
@@ -319,7 +517,7 @@
             console.log(result);
           });
         }
-      }
+      };
 
       // prep modals
       $ionicModal.fromTemplateUrl('settings/templates/customer-modal.html',{
@@ -358,10 +556,19 @@
       });
       // end of modals
 
+      // popovers
+      $ionicPopover.fromTemplateUrl('settings/templates/items-popover.html',{
+        scope:$scope
+      }).then(function(popover){
+        $scope.itemsPopover = popover;
+      });
+      // end of popovers
+
       $scope.Items.getCategories(null);
       $scope.Items.byCategory(null);
       $scope.Discount.getAll();
       $scope.Customer.getAll();
+      $scope.Printer.get();
 
       $scope.$on('$destroy',function(){
         $scope.discountModal.remove();
@@ -369,6 +576,7 @@
         $scope.printerModal.remove();
         $scope.itemModal.remove();
         $scope.unitsModal.remove();
+        $scope.itemsPopover.remove();
       });
 
     }

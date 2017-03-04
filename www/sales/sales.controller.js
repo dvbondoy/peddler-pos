@@ -5,8 +5,8 @@
     .module('app.sales')
     .controller('SalesController', SalesController);
 
-    SalesController.$inject = ['$scope','Item','$ionicModal','ionicDatePicker','$ionicActionSheet','Discount','Sales','Customer','$ionicLoading'];
-    function SalesController($scope,Item,$ionicModal,ionicDatePicker,$ionicActionSheet,Discount,Sales,Customer,$ionicLoading) {
+    SalesController.$inject = ['$scope','Item','$ionicModal','ionicDatePicker','$ionicActionSheet','Discount','Sales','Customer','$ionicLoading','Local','$ionicPopup'];
+    function SalesController($scope,Item,$ionicModal,ionicDatePicker,$ionicActionSheet,Discount,Sales,Customer,$ionicLoading,Local,$ionicPopup) {
       var vm = this;
 
       vm.tab = {active:'library'};
@@ -105,15 +105,20 @@
         remove:function(item){
           var order = this;
 
-          if(confirm('Remove Item from order?')){
-            order.items.forEach(function(value, index){
-              if(value._id == item._id){
-                order.items.splice(index,1);
-              }
-            });
+          $ionicPopup.confirm({
+            title:'Confirm remove',
+            template:'Remove item from order?'
+          }).then(function(res){
+            if(res){
+              order.items.forEach(function(value, index){
+                if(value._id == item._id){
+                  order.items.splice(index,1);
+                }
+              });
 
-            order.updateOrder();
-          }
+              order.updateOrder();
+            }
+          });
         },
         reset:function(){
           var order = this;
@@ -166,6 +171,8 @@
           var date = moment().format('YYYY-MM-DD');
           var time = moment().format('kk:mm:ss');
 
+          payments.change = payments.total() - payments.charge();
+
           var sale = {
             type : 'sale',
             _id : 'sale/'+date+'/'+time,
@@ -174,9 +181,10 @@
             time:time,
             subtotal:order.total_amount,
             charge:payments.charge(),
+            change:payments.change,
             discount:discounts.active,
             customer:customer.active,
-            items:order.items
+            items:order.items,
           };
 
           if(payments.total() < order.total_amount){
@@ -184,19 +192,22 @@
             return 0;
           }
 
-          payments.change = payments.total() - payments.charge();
-
           Sales.add(sale).then(function(result){
             console.log(result);
             if(result.ok){
               $scope.checkoutModal.hide();
               order.reset();
               // alert('Done!');
-              alert('Change : '+payments.change);
+              // alert('Change : '+payments.change);
+              $ionicPopup.alert({title:'CHANGE',template:'Php '+payments.change.toFixed(2)});
             }else if(result.error){
               alert(result.message);
             }
           });
+
+          if($scope.Printer.auto_print){
+            $scope.Printer.print(sale);
+          }
         }
       };
 
@@ -318,21 +329,49 @@
 
       $scope.Printer = {
         status:'offline',
-        check:function(){
+        auto_print:false,
+        device:null,
+        checkSettings:function(){
+          Local.getPriner().then(function(result){
+            if(result.error){
+              console.log(result);
+              return 0;
+            }
+
+            vm.auto_print = result.auto_print;
+          });
+        },
+        checkStatus:function(){
           var printer = this;
 
-          $ionicLoading.show({template:'Connecting...'});
+          $ionicLoading.show({template:'Checking printer...'});
+          
+          Local.getPrinter().then(function(result){
+            if(result.error){
+              $ionicLoading.hide();
+              
+              return 0;
+            }
 
-          BTPrinter.connect(function(success){
-            printer.status = 'online';
-          },function(error){
-            alert(error);
-          },'Printer name');
+            printer.device = result.printer;
 
-          BTPrinter.disconnect();
-          $ionicLoading.hide();
+            printer.auto_print = result.auto_print;
+
+            if(printer.auto_print){
+              BTPrinter.connect(function(success){
+                printer.status = 'online';
+              },function(error){
+                alert(error);
+              },result.printer);
+
+              BTPrinter.disconnect();
+            }
+            $ionicLoading.hide();
+          });
         },
         print:function(data){
+          var printer = this;
+
           var items = data.items;
 
           BTPrinter.connect(function(success){
@@ -343,13 +382,13 @@
             //left align
             BTPrinter.printPOSCommand(function(){},function(){},"1B 61 00");
             BTPrinter.printText(function(){},function(){},"Customer: "+data.customer.company+"\n");
-            BTPrinter.printText(function(){},function(){},"Date: "+moment().format("YYYY-MM-DD")+"\n");
-            BTPrinter.printText(function(){},function(){},"Time: "+moment().format("h:mm:ss a")+"\n\n");
+            BTPrinter.printText(function(){},function(){},"Date: "+moment(data.date).format("YYYY-MM-DD")+"\n");
+            BTPrinter.printText(function(){},function(){},"Time: "+moment(data.time).format("kk:mm:ss")+"\n\n");
             //print obj
             items.forEach(function(value){
               BTPrinter.printText(function(){},function(){},
                 value.quantity+" "+
-                value._id.slice(6)+
+                value.print_description+
                 "      @"+
                 value.price+
                 "      "+
@@ -365,10 +404,9 @@
             //left
             BTPrinter.printPOSCommand(function(){},function(){},"1B 61 00");
             BTPrinter.printText(function(){},function(){},"SUB-TOTAL        "+data.subtotal+"\n");
-            if(sale.discount !== null){
-              BTPrinter.printText(function(){},function(){},"DISCOUNT         "+data.discount.amount+"\n");
-            }
-            BTPrinter.printText(function(){},function(){},"TOTAL            "+data.charge+"\n\n\n");
+            // BTPrinter.printText(function(){},function(){},"DISCOUNT         "+data.discount.amount+"\n");
+            BTPrinter.printText(function(){},function(){},"TOTAL            "+data.charge+"\n");
+            BTPrinter.printText(function(){},function(){},"CHANGE           "+data.change+"\n\n\n");
 
             //center again
             BTPrinter.printPOSCommand(function(){},function(){},"1B 61 01");
@@ -381,19 +419,41 @@
 
           },function(error){
             console.log(error);
-          },"Bluetooth Printer");
+          },printer.device);
         }
       };
 
       $scope.promptQuantity = function(){
-        var qty = prompt('Enter Quantity');
+        $scope.data = {};
 
-        if(qty == "" || qty == null || isNaN(qty) || qty == 0){
-          alert('Invalid value');
-          return 0;
-        }
+        $ionicPopup.show({
+          template:'<input type="number" ng-model="data.quantity" placeholder="Quantity">',
+          title:'Input Quantity',
+          scope:$scope,
+          buttons:[
+            {text:'Cancel'},
+            {
+              text:'<b>Set</b>',
+              type:'button-positive',
+              onTap:function(e){
+                return $scope.data.quantity;
+              }
+            }
+          ]
+        }).then(function(res){
+          console.log(res);
 
-        vm.quantity = qty;
+          if(res == undefined){
+            return 0;
+          }
+
+          if(res == "" || res == null || isNaN(res) || res == 0 || res == undefined || res < 1){
+            alert('Invalid value');
+            return 0;
+          }
+
+          vm.quantity = res;
+        });
       };
 
       $scope.Items.getCategories($scope.Items.category);

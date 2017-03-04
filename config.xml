@@ -7,7 +7,7 @@
   <author email="dvbondoy@gmail.com" href="http://example.com.com/">
       dvbondoy
     </author>
-  <content src="index.html"/>
+  <content src="http://192.168.8.101:8100" original-src="index.html"/>
   <access origin="*"/>
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
@@ -44,6 +44,7 @@
   <allow-navigation href="http://192.168.8.102:8100"/>
   <allow-navigation href="http://192.168.8.102:8101"/>
   <allow-navigation href="http://192.168.8.103:8100"/>
+  <allow-navigation href="http://192.168.8.101:8101"/>
   <plugin name="cordova-sqlite-storage" spec="https://github.com/litehelpers/Cordova-sqlite-storage.git"/>
   <plugin name="cordova-plugin-whitelist" spec="https://github.com/apache/cordova-plugin-whitelist.git"/>
   <plugin name="cordova-plugin-file" spec="~4.3.1"/>

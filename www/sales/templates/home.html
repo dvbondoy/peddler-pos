@@ -14,7 +14,7 @@
     <!-- View order button-->
     <ion-nav-buttons side="right">
       <!-- <button class="button button-icon ion-ios-personadd" ng-click="customerModal.show();getCustomerList('zip');vm.areaFlag='zip'"></button> -->
-      <button class="button button-icon ion-android-done-all" ng-click="checkoutModal.show()" ng-disabled="Order.items.length == 0"></button>
+      <button class="button button-icon ion-android-done-all" ng-click="checkoutModal.show();Printer.checkStatus()" ng-disabled="Order.items.length == 0"></button>
       <!-- <button class="button button-icon ion-ios-download" ng-if="vm.isInventory == true" ng-click="saveInventory()"></button> -->
     </ion-nav-buttons>
   </ion-nav-bar>
@@ -108,8 +108,8 @@
           <span class="assertive">EMPTY</span>
         </ion-item> 
 
-        <div ng-show="vm.showBack">
-          <button class="button button-block button-balanced" ng-click="Items.prevCategory()">Back</button>
+        <div ng-show="vm.showBack && vm.filterText == 'Items'">
+          <button class="button icon-left ion-chevron-left button-clear button-dark" ng-click="Items.prevCategory()">Previous</button>
         </div>
 
         <!--search form-->

@@ -8,9 +8,9 @@
 	<ion-content has-subheader="false">
 		<div class="padding">
 			<ion-list>
-				<ion-item ng-repeat="discount in Discount.list" ng-click="vm.discount = discount;discountModal.show()">
+				<ion-item ng-repeat="discount in Discount.list" ng-click="Discount.edit(discount)">
 					{{ discount.description }}
-					<span class="pull-right">{{ discount.percentage * 100 | number:2 }}%</span>
+					<span class="pull-right">{{ discount.percentage * 100 }} %</span>
 				</ion-item>
 			</ion-list>
 		</div>
