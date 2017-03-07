@@ -1,0 +1,23 @@
+<ion-view ng-controller="ReportController as vm">
+    <ion-nav-bar class="bar-stable bar-no-border" align-title="center">
+        <ion-nav-back-button>
+            Back
+        </ion-nav-back-button>
+
+        <ion-nav-buttons side="right">
+        </ion-nav-buttons>
+    </ion-nav-bar>
+    <ion-content>
+        <div class="padding">
+            <h1>{{list}}</h1>
+            <ion-list>
+                <ion-item ng-repeat="sale in vm.params.list">
+                <span class="gray">Trans ID: {{sale._id}}</span>
+                <p>Time: {{sale.time}}</p>
+                <p>Charge: {{sale.charge | currency:"Php "}}</p>
+                <p>Items: {{sale.items.length}}</p>
+                </ion-item>
+            </ion-list>
+        </div>
+    </ion-content>
+</ion-view>

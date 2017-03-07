@@ -5,9 +5,20 @@
     .module('app.report')
     .controller('ReportController', ReportController);
 
-  ReportController.$inject = ['$scope','Report','$ionicActionSheet','$ionicModal','ionicDatePicker'];
-  function ReportController($scope,Report,$ionicActionSheet,$ionicModal,ionicDatePicker) {
+  ReportController.$inject = ['$scope','Report','$ionicActionSheet','$ionicModal','ionicDatePicker','$stateParams'];
+  function ReportController($scope,Report,$ionicActionSheet,$ionicModal,ionicDatePicker,$stateParams) {
     var vm = this;
+
+    $scope.$on("$ionicView.enter", function(event, data){
+      // console.log("State Params: ", JSON.stringify(data));
+      if(data.stateName == 'app.sales_details'){
+        vm.params = $stateParams;
+        // console.log('params:'+JSON.stringify(vm.params));
+      }
+
+      console.log('list:'+JSON.stringify($scope.Sales.list));
+    });
+
     
     $scope.Sales = {
       list:[],
@@ -16,14 +27,15 @@
 
         vm.sales_summary = {
           total_amount : 0,
-          total_count:sales.list.length
+          total_count:sales.list.length,
+          total_items:0
         };
 
         sales.list.forEach(function(sale,index){
           vm.sales_summary.total_amount += sale.charge;
         });
 
-        console.log(vm.sales_summary);
+        console.log(JSON.stringify(sales.list));
       },
       setDate:function(){
         var sales = this;

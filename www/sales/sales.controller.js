@@ -139,7 +139,7 @@
         updateOrder:function(){
           var order = this;
 
-          var discounts = $scope.Discounts;
+          // var discounts = $scope.Discounts;
 
           var amount = 0;
 

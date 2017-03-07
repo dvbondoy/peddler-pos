@@ -21,21 +21,24 @@
     <div class="padding">
       <div class="card">
         <div class="item item-text-wrap">
-          <h2 class="gray">SUMMARY - {{vm.date}}</h2>
-          <p>Total Amount: <span class="bold">{{vm.sales_summary.total_amount|currency:"Php "}}</span></p>
+          <h2 class="gray">SALES - {{vm.date}}</h2>
+          <p>Total Sales: <span class="bold">{{vm.sales_summary.total_amount|currency:"Php "}}</span></p>
           <p>Total Count: <span class="bold">{{vm.sales_summary.total_count}}</span></p>
+        </div>
+        <div class="item item-text-wrap" ui-sref="app.sales_details({list:Sales.list})">
+          <a>View Details</a>
         </div>
       </div>
 
       <!--<h3 class="gray">DETAILS</h3>-->
-      <ion-list>
+      <!--<ion-list>
         <ion-item ng-repeat="sale in Sales.list">
           <span class="gray">Trans ID: {{sale._id}}</span>
           <p>Time: {{sale.time}}</p>
           <p>Charge: {{sale.charge | currency:"Php "}}</p>
           <p>Items: {{sale.items.length}}</p>
         </ion-item>
-      </ion-list>
+      </ion-list>-->
     </div>
   </ion-content>
 </ion-view>

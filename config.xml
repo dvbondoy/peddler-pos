@@ -7,7 +7,7 @@
   <author email="dvbondoy@gmail.com" href="http://example.com.com/">
       dvbondoy
     </author>
-  <content src="http://192.168.8.101:8100" original-src="index.html"/>
+  <content src="index.html"/>
   <access origin="*"/>
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
