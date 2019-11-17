@@ -1,3 +1,6 @@
+******
+# IMPORTANT NOTICE: #This project is deprecated and will be ported to reac-native in the near future. I am retaining this educational purposes. Visit my [site](https://blahger.herokuapp.com/) for updates.
+******
 # Peddler POS
 ## Mobile Point of Sale
 
