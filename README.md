@@ -1,5 +1,5 @@
 ******
-# IMPORTANT NOTICE: #This project is deprecated and will be ported to react-native in the near future. I am retaining this for educational purposes. Visit my [site](https://blahger.herokuapp.com/) for updates.
+# IMPORTANT NOTICE: #This project is deprecated and will be ported to react-native in the near future. I am retaining this for educational purposes. Visit my [site](https://flickos.net/blog/) for updates.
 
 # Peddler POS
 ## Mobile Point of Sale
